@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>WAV 音频工作站</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-deep: #0a0a12;
+  --bg-primary: #12121e;
+  --bg-card: #1a1a2e;
+  --bg-hover: #242440;
+  --bg-active: #2a2a4a;
+  --accent: #00e8b0;
+  --accent-dim: #00b88a;
+  --accent-glow: rgba(0, 232, 176, 0.15);
+  --accent-glow2: rgba(0, 232, 176, 0.08);
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888a8;
+  --text-dim: #555570;
+  --danger: #ff4466;
+  --danger-dim: #cc3355;
+  --warning: #ffaa33;
+  --fav1: #ff6b9d;
+  --fav2: #ffa94d;
+  --fav3: #69db7c;
+  --fav4: #74c0fc;
+  --border: #2a2a40;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  --font: 'Noto Sans SC', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --sidebar-w: 280px;
+}
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: var(--font);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.app { display: flex; flex: 1; overflow: hidden; height: 100%; }
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.sidebar-header { padding: 20px 16px 12px; border-bottom: 1px solid var(--border); }
+.sidebar-header h2 { font-size: 14px; font-weight: 500; color: var(--text-secondary); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.btn-add-folder {
+  width: 100%; padding: 10px;
+  background: var(--accent-glow); border: 1px dashed var(--accent-dim); border-radius: var(--radius-sm);
+  color: var(--accent); font-family: var(--font); font-size: 14px; cursor: pointer; transition: all 0.2s;
+}
+.btn-add-folder:hover { background: var(--accent-glow2); border-style: solid; }
+.btn-add-folder:active { transform: scale(0.97); }
+.folder-list { flex: 1; overflow-y: auto; padding: 8px; }
+.folder-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; position: relative;
+}
+.folder-item:hover { background: var(--bg-hover); }
+.folder-item.active { background: var(--bg-active); }
+.folder-item.active::before {
+  content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+  width: 3px; background: var(--accent); border-radius: 2px;
+}
+.folder-icon { font-size: 18px; flex-shrink: 0; }
+.folder-name { flex: 1; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.folder-count { font-size: 11px; color: var(--text-dim); font-family: var(--mono); background: var(--bg-deep); padding: 2px 6px; border-radius: 8px; }
+.folder-remove {
+  opacity: 0; background: none; border: none; color: var(--text-dim);
+  cursor: pointer; font-size: 16px; padding: 2px; transition: all 0.15s;
+}
+.folder-item:hover .folder-remove { opacity: 1; }
+.folder-remove:hover { color: var(--danger); }
+
+.fav-section { padding: 12px 16px; border-top: 1px solid var(--border); }
+.fav-section h3 { font-size: 12px; font-weight: 500; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.fav-folder-list { display: flex; flex-direction: column; gap: 6px; }
+.fav-folder-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  background: var(--bg-deep); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+}
+.fav-folder-item:hover { background: var(--bg-hover); }
+.fav-folder-item .fav-badge {
+  width: 24px; height: 24px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--bg-deep); flex-shrink: 0;
+}
+.fav-folder-item[data-fav="1"] .fav-badge { background: var(--fav1); }
+.fav-folder-item[data-fav="2"] .fav-badge { background: var(--fav2); }
+.fav-folder-item[data-fav="3"] .fav-badge { background: var(--fav3); }
+.fav-folder-item[data-fav="4"] .fav-badge { background: var(--fav4); }
+.fav-folder-item .fav-name { flex: 1; font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fav-folder-item .fav-name.empty { font-style: italic; color: var(--text-dim); }
+.fav-folder-item .fav-clear { opacity: 0; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 2px; }
+.fav-folder-item:hover .fav-clear { opacity: 1; }
+.fav-folder-item .fav-clear:hover { color: var(--danger); }
+
+.fav-buttons { display: flex; align-items: center; gap: 4px; }
+.fav-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-secondary);
+  cursor: pointer; width: 36px; height: 32px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
+  font-family: var(--mono); transition: all 0.15s; position: relative;
+}
+.fav-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.fav-btn:active { transform: scale(0.92); }
+.fav-btn.fav-1 { border-color: rgba(255, 107, 157, 0.3); color: var(--fav1); }
+.fav-btn.fav-1:hover { background: rgba(255, 107, 157, 0.15); border-color: var(--fav1); }
+.fav-btn.fav-2 { border-color: rgba(255, 169, 77, 0.3); color: var(--fav2); }
+.fav-btn.fav-2:hover { background: rgba(255, 169, 77, 0.15); border-color: var(--fav2); }
+.fav-btn.fav-3 { border-color: rgba(105, 219, 124, 0.3); color: var(--fav3); }
+.fav-btn.fav-3:hover { background: rgba(105, 219, 124, 0.15); border-color: var(--fav3); }
+.fav-btn.fav-4 { border-color: rgba(116, 192, 252, 0.3); color: var(--fav4); }
+.fav-btn.fav-4:hover { background: rgba(116, 192, 252, 0.15); border-color: var(--fav4); }
+.fav-btn.disabled { opacity: 0.3; cursor: not-allowed; }
+.fav-btn .key-hint { position: absolute; top: -6px; right: -4px; font-size: 9px; background: var(--bg-deep); padding: 1px 3px; border-radius: 2px; color: var(--text-dim); }
+.fav-btn.favorited { background: var(--bg-active); }
+.fav-btn.fav-1.favorited { background: rgba(255, 107, 157, 0.3); border-color: var(--fav1); box-shadow: 0 0 8px rgba(255, 107, 157, 0.3); }
+.fav-btn.fav-2.favorited { background: rgba(255, 169, 77, 0.3); border-color: var(--fav2); box-shadow: 0 0 8px rgba(255, 169, 77, 0.3); }
+.fav-btn.fav-3.favorited { background: rgba(105, 219, 124, 0.3); border-color: var(--fav3); box-shadow: 0 0 8px rgba(105, 219, 124, 0.3); }
+.fav-btn.fav-4.favorited { background: rgba(116, 192, 252, 0.3); border-color: var(--fav4); box-shadow: 0 0 8px rgba(116, 192, 252, 0.3); }
+
+.track-area { flex: 1; overflow-y: auto; padding: 16px; }
+.track-area-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 4px; }
+.track-area-header h2 { font-size: 18px; font-weight: 500; }
+.track-count { font-size: 12px; color: var(--text-dim); font-family: var(--mono); }
+.track-list { list-style: none; }
+.track-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; margin-bottom: 2px;
+}
+.track-item:hover { background: var(--bg-hover); }
+.track-item.active { background: var(--accent-glow); }
+.track-item.playing .track-index { color: var(--accent); }
+.track-index { font-family: var(--mono); font-size: 12px; color: var(--text-dim); width: 28px; text-align: right; flex-shrink: 0; }
+.track-name { flex: 1; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.track-item.playing .track-name { color: var(--accent); font-weight: 500; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60%; color: var(--text-dim); gap: 12px; }
+.empty-state .icon { font-size: 48px; opacity: 0.3; }
+.empty-state p { font-size: 14px; }
+
+
+
+.player {
+  background: var(--bg-card); border-top: 1px solid var(--border);
+  padding: 14px 24px 18px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0;
+}
+.player-info { display: flex; align-items: center; justify-content: space-between; min-height: 24px; }
+.player-title { font-size: 14px; font-weight: 500; white-space: nowrap; }
+.player-folder-name { font-size: 12px; color: var(--text-dim); }
+.progress-area { display: flex; align-items: center; gap: 10px; }
+.time-label { font-family: var(--mono); font-size: 12px; color: var(--text-secondary); min-width: 48px; }
+.time-label.right { text-align: right; }
+.progress-bar-wrap { flex: 1; height: 28px; display: flex; align-items: center; cursor: pointer; position: relative; }
+.progress-bar { width: 100%; height: 4px; background: var(--bg-deep); border-radius: 2px; position: relative; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; position: relative; transition: width 0.1s linear; }
+.progress-fill::after {
+  content: ''; position: absolute; right: -6px; top: -4px;
+  width: 12px; height: 12px; background: var(--accent); border-radius: 50%; opacity: 0; transition: opacity 0.15s;
+}
+.progress-bar-wrap:hover .progress-fill::after { opacity: 1; }
+.controls { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.ctrl-btn {
+  background: none; border: none; color: var(--text-secondary); cursor: pointer;
+  width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 18px; transition: all 0.15s; position: relative; flex-shrink: 0;
+}
+.ctrl-btn:hover { color: var(--text-primary); background: var(--bg-hover); }
+.ctrl-btn:active { transform: scale(0.9); }
+.ctrl-btn.primary { width: 48px; height: 48px; background: var(--accent); color: var(--bg-deep); font-size: 22px; }
+.ctrl-btn.primary:hover { background: var(--accent-dim); color: var(--bg-deep); }
+.ctrl-btn.active { color: var(--accent); }
+.controls-secondary { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 2px; flex-wrap: wrap; }
+.ctrl-btn-sm {
+  background: none; border: none; color: var(--text-dim); cursor: pointer;
+  padding: 6px 10px; border-radius: var(--radius-sm); font-size: 12px;
+  font-family: var(--font); transition: all 0.15s; display: flex; align-items: center; gap: 4px; white-space: nowrap;
+}
+.ctrl-btn-sm:hover { color: var(--text-primary); background: var(--bg-hover); }
+.ctrl-btn-sm:active { transform: scale(0.95); }
+.ctrl-btn-sm.danger:hover { color: var(--danger); }
+.ctrl-btn-sm .key { font-family: var(--mono); font-size: 10px; background: var(--bg-deep); padding: 1px 4px; border-radius: 3px; color: var(--text-dim); }
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 16px; font-size: 13px; color: var(--text-primary); box-shadow: var(--shadow);
+  animation: toastIn 0.3s ease; max-width: 320px;
+}
+.toast.success { border-left: 3px solid var(--accent); }
+.toast.error { border-left: 3px solid var(--danger); }
+.toast.warning { border-left: 3px solid var(--warning); }
+.toast.fav1 { border-left: 3px solid var(--fav1); }
+.toast.fav2 { border-left: 3px solid var(--fav2); }
+.toast.fav3 { border-left: 3px solid var(--fav3); }
+.toast.fav4 { border-left: 3px solid var(--fav4); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } }
+
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 100; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; min-width: 280px; max-width: 90vw; box-shadow: var(--shadow);
+  animation: toastIn 0.2s ease;
+}
+.modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 14px; color: var(--text-primary); }
+.modal-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.modal-row label { font-size: 13px; color: var(--text-secondary); }
+.modal-row input {
+  width: 100%; padding: 9px 12px; background: var(--bg-deep); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text-primary); font-family: var(--mono);
+  font-size: 15px; outline: none; transition: border-color 0.15s;
+}
+.modal-row input:focus { border-color: var(--accent); }
+.modal-hint { font-size: 11px; color: var(--text-dim); margin: 6px 0 16px; line-height: 1.5; }
+.modal-buttons { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-buttons button {
+  padding: 8px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--bg-deep); color: var(--text-primary); cursor: pointer;
+  font-family: var(--font); font-size: 13px; transition: all 0.15s;
+}
+.modal-buttons button:hover { background: var(--bg-hover); }
+.modal-buttons button.primary { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); font-weight: 500; }
+.modal-buttons button.primary:hover { background: var(--accent-dim); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 3px; }
+.menu-toggle {
+  display: none; position: fixed; top: 10px; left: 10px; z-index: 20;
+  background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary);
+  width: 40px; height: 40px; border-radius: var(--radius-sm); font-size: 20px; cursor: pointer;
+  align-items: center; justify-content: center;
+}
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9; }
+@media (max-width: 640px) {
+  .sidebar { position: fixed; left: -100%; top: 0; bottom: 0; width: 280px; z-index: 11; transition: left 0.25s ease; }
+  .sidebar.open { left: 0; }
+  .sidebar-overlay.show { display: block; }
+  .menu-toggle { display: flex; }
+  .player { padding: 12px 16px 16px; }
+}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="菜单">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>📁 文件夹</h2>
+      <button class="btn-add-folder" onclick="addFolder()">+ 添加文件夹</button>
+    </div>
+    <div class="folder-list" id="folderList"></div>
+    <div class="fav-section">
+      <h3>⭐ 收藏目录</h3>
+      <div class="fav-folder-list" id="favFolderList"></div>
+    </div>
+    <div style="padding:8px 16px;border-top:1px solid var(--border);">
+      <button class="ctrl-btn-sm" onclick="restorePlayback()" title="恢复上次崩溃前的播放状态" style="width:100%;justify-content:center;font-size:11px;color:var(--text-dim);">↻ 恢复上次播放</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="track-area" id="trackArea">
+      <div class="empty-state"><div class="icon">🎵</div><p>点击左侧「添加文件夹」开始</p><p style="font-size:12px;color:var(--text-dim)">选择包含 WAV 文件的文件夹</p></div>
+    </div>
+
+    <div class="player">
+      <div class="player-info"><div><div class="player-title" id="playerTitle">未选择音频</div><div class="player-folder-name" id="playerFolder"></div></div></div>
+      <div class="progress-area">
+        <span class="time-label" id="timeCurrent">0:00</span>
+        <div class="progress-bar-wrap" id="progressWrap"><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div></div>
+        <span class="time-label right" id="timeTotal">0:00</span>
+      </div>
+      <div>
+        <div class="controls">
+          <button class="ctrl-btn" id="btnShuffle" onclick="togglePlayMode('shuffle')" title="随机播放">🔀</button>
+          <button class="ctrl-btn" onclick="prevTrack()" title="上一曲">⏮</button>
+          <button class="ctrl-btn primary" id="btnPlay" onclick="togglePlay()" title="播放/暂停">▶</button>
+          <button class="ctrl-btn" onclick="nextTrack()" title="下一曲">⏭</button>
+          <button class="ctrl-btn" id="btnLoop" onclick="cycleLoopMode()" title="循环模式">🔁</button>
+        </div>
+      </div>
+      <div class="controls-secondary">
+        <div class="fav-buttons">
+          <button class="fav-btn fav-1" onclick="doFavorite(1)" title="收藏到目录1">1<span class="key-hint">⭐</span></button>
+          <button class="fav-btn fav-2" onclick="doFavorite(2)" title="收藏到目录2">2<span class="key-hint">⭐</span></button>
+          <button class="fav-btn fav-3" onclick="doFavorite(3)" title="收藏到目录3">3<span class="key-hint">⭐</span></button>
+          <button class="fav-btn fav-4" onclick="doFavorite(4)" title="收藏到目录4">4<span class="key-hint">⭐</span></button>
+        </div>
+        <button class="ctrl-btn-sm" onclick="doSplit()" title="切分当前音频">✂️ 切分 <span class="key">9</span></button>
+        <button class="ctrl-btn-sm" onclick="openSplitSettings()" title="切分静音时长设置" style="padding:6px 8px;">⚙️</button>
+        <button class="ctrl-btn-sm" onclick="doMerge()" title="合并当前与下一个">🔗 合并 <span class="key">0</span></button>
+        <button class="ctrl-btn-sm danger" onclick="doDelete()" title="删除当前音频">🗑️ 删除 <span class="key">Del</span></button>
+        <button class="ctrl-btn-sm" onclick="doUndo()" title="撤回上一步操作">↩️ 撤回 <span class="key">Ctrl+Z</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-overlay" id="splitSettingsModal" onclick="if(event.target===this)closeSplitSettings()">
+  <div class="modal">
+    <h3>切分设置</h3>
+    <div class="modal-row">
+      <label for="splitMinDurInput">静音最小时长（秒）</label>
+      <input type="number" id="splitMinDurInput" min="0.01" step="0.01" inputmode="decimal" onkeydown="if(event.key==='Enter'){event.preventDefault();saveSplitSettings();}else if(event.key==='Escape'){event.preventDefault();closeSplitSettings();}">
+    </div>
+    <p class="modal-hint">检测到连续静音时长超过该值时进行切分。最小 0.01 秒。</p>
+    <div class="modal-buttons">
+      <button onclick="closeSplitSettings()">取消</button>
+      <button class="primary" onclick="saveSplitSettings()">确定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  Platform Detection
+// ═══════════════════════════════════════════════════════
+const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const SafPlugin = isNative ? window.Capacitor.Plugins.SafPlugin : null;
+
+// ═══════════════════════════════════════════════════════
+//  File System Abstraction
+// ═══════════════════════════════════════════════════════
+const FS = {
+  async pickDirectory() {
+    if (isNative) { const r = await SafPlugin.pickDirectory(); return { ref: r.uri, name: r.name }; }
+    if (!window.showDirectoryPicker) throw new Error('浏览器不支持文件夹选择');
+    const h = await window.showDirectoryPicker({ mode: 'readwrite' });
+    return { ref: h, name: h.name };
+  },
+  async listWavFiles(folderRef) {
+    if (isNative) {
+      const r = await SafPlugin.listWavFiles({ uri: folderRef });
+      const arr = Array.isArray(r.files) ? r.files : JSON.parse(JSON.stringify(r.files || []));
+      return arr.filter(f => f.name.toLowerCase().endsWith('.wav')).sort((a,b) => a.name.localeCompare(b.name,'zh-CN',{numeric:true})).map(f => ({ ref: f.uri, name: f.name }));
+    }
+    const files = [];
+    for await (const e of folderRef.values()) { if (e.kind==='file' && e.name.toLowerCase().endsWith('.wav')) files.push({ref:e, name:e.name}); }
+    return files.sort((a,b) => a.name.localeCompare(b.name,'zh-CN',{numeric:true}));
+  },
+  async getPlaybackUrl(fileRef) {
+    if (isNative) { const r = await SafPlugin.getFileForPlayback({uri:fileRef}); return window.Capacitor.convertFileSrc(r.path); }
+    return URL.createObjectURL(await fileRef.getFile());
+  },
+  async readFileBuffer(fileRef) {
+    if (isNative) { const r = await SafPlugin.readFileData({uri:fileRef}); return base64ToArrayBuffer(r.data); }
+    return await (await fileRef.getFile()).arrayBuffer();
+  },
+  async writeFile(folderRef, fileName, arrayBuffer) {
+    if (isNative) { const b64=arrayBufferToBase64(arrayBuffer); const r=await SafPlugin.writeFile({dirUri:folderRef,fileName,data:b64}); return {ref:r.uri, name:r.name||fileName}; }
+    const h = await folderRef.getFileHandle(fileName,{create:true}); const w=await h.createWritable(); await w.write(arrayBuffer); await w.close(); return {ref:h, name:fileName};
+  },
+  async deleteFile(folderRef, fileName, fileRef) {
+    if (isNative) { await SafPlugin.deleteFile({uri:fileRef}); } else { await folderRef.removeEntry(fileName); }
+  },
+  async getSavedFolders() {
+    if (isNative) { const r=await SafPlugin.getSavedFolders(); const a=Array.isArray(r.folders)?r.folders:JSON.parse(JSON.stringify(r.folders||[])); return a.map(f=>({ref:f.uri,name:f.name})); }
+    return await idbGetAllFolders();
+  },
+  async saveFolder(ref,name) { if (!isNative) return await idbSaveFolder(ref,name); return null; },
+  async removeFolder(ref) { if (isNative) await SafPlugin.removeSavedFolder({uri:ref}); },
+  async requestPermission(handle) {
+    if (isNative) return true;
+    const o={mode:'readwrite'}; if (await handle.queryPermission(o)==='granted') return true; return (await handle.requestPermission(o))==='granted';
+  }
+};
+
+function arrayBufferToBase64(buf) { const b=new Uint8Array(buf); let r=''; for(let i=0;i<b.length;i+=32768){const c=b.subarray(i,Math.min(i+32768,b.length)); r+=String.fromCharCode.apply(null,c);} return btoa(r); }
+function base64ToArrayBuffer(s) { const b=atob(s); const a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a.buffer; }
+
+// ═══════════════════════════════════════════════════════
+//  FileCache — localStorage cache for file lists
+// ═══════════════════════════════════════════════════════
+const FileCache = {
+  _key(name) { return 'fc_' + name; },
+  save(folderName, files) {
+    try {
+      const d = files.map(f => ({ name: f.name, ref: isNative ? f.ref : null }));
+      localStorage.setItem(this._key(folderName), JSON.stringify({ files: d, ts: Date.now() }));
+    } catch(e) {}
+  },
+  load(folderName) {
+    try { const r=localStorage.getItem(this._key(folderName)); if(!r) return null; return JSON.parse(r).files||null; } catch(e) { return null; }
+  },
+  remove(folderName) { try { localStorage.removeItem(this._key(folderName)); } catch(e) {} },
+};
+
+// ═══════════════════════════════════════════════════════
+//  FavCache — in-memory + localStorage cache for fav file names
+// ═══════════════════════════════════════════════════════
+const FavCache = {
+  _data: {},
+  _loaded: {},
+
+  async refresh(index) {
+    const fav = favState.folders[index];
+    if (!fav) { this._data[index] = new Set(); this._loaded[index] = true; return; }
+    try {
+      const files = await FS.listWavFiles(fav.ref);
+      this._data[index] = new Set(files.map(f => f.name));
+      this._persist(index);
+    } catch(e) { this._data[index] = new Set(); }
+    this._loaded[index] = true;
+  },
+
+  loadFromDisk(index) {
+    const fav = favState.folders[index];
+    if (!fav) { this._data[index] = new Set(); return; }
+    try {
+      const raw = localStorage.getItem('favc_' + index);
+      this._data[index] = raw ? new Set(JSON.parse(raw)) : new Set();
+      if (raw) this._loaded[index] = true;
+    } catch(e) { this._data[index] = new Set(); }
+  },
+
+  has(index, fileName) { return this._data[index] ? this._data[index].has(fileName) : false; },
+  add(index, fileName) { if (!this._data[index]) this._data[index] = new Set(); this._data[index].add(fileName); this._persist(index); },
+  remove(index, fileName) { if (this._data[index]) this._data[index].delete(fileName); this._persist(index); },
+
+  _persist(index) {
+    try { localStorage.setItem('favc_' + index, JSON.stringify([...(this._data[index] || [])])); } catch(e) {}
+  },
+
+  invalidate(index) { this._loaded[index] = false; },
+};
+
+// ═══════════════════════════════════════════════════════
+//  IndexedDB (browser only)
+// ═══════════════════════════════════════════════════════
+function idbOpen() {
+  return new Promise((res,rej) => {
+    const r=indexedDB.open('WavPlayerDB',2);
+    r.onupgradeneeded=e => { const db=e.target.result; if(!db.objectStoreNames.contains('folders')) db.createObjectStore('folders',{keyPath:'id',autoIncrement:true}); if(!db.objectStoreNames.contains('favFolders')) db.createObjectStore('favFolders',{keyPath:'index'}); };
+    r.onsuccess=e=>res(e.target.result); r.onerror=e=>rej(e.target.error);
+  });
+}
+async function idbSaveFolder(h,n) { const db=await idbOpen(); return new Promise((res,rej)=>{const tx=db.transaction('folders','readwrite'); const r=tx.objectStore('folders').add({handle:h,name:n}); r.onsuccess=()=>res(r.result); tx.onerror=e=>rej(e.target.error);}); }
+async function idbGetAllFolders() { const db=await idbOpen(); return new Promise((res,rej)=>{const r=db.transaction('folders','readonly').objectStore('folders').getAll(); r.onsuccess=()=>res(r.result.map(x=>({ref:x.handle,name:x.name,dbId:x.id}))); r.onerror=e=>rej(e.target.error);}); }
+async function idbRemoveFolder(id) { const db=await idbOpen(); return new Promise((res,rej)=>{const tx=db.transaction('folders','readwrite'); tx.objectStore('folders').delete(id); tx.oncomplete=()=>res(); tx.onerror=e=>rej(e.target.error);}); }
+async function idbSaveFavFolder(i,h,n) { const db=await idbOpen(); return new Promise((res,rej)=>{const tx=db.transaction('favFolders','readwrite'); tx.objectStore('favFolders').put({index:i,handle:h,name:n}); tx.oncomplete=()=>res(); tx.onerror=e=>rej(e.target.error);}); }
+async function idbGetAllFavFolders() { const db=await idbOpen(); return new Promise((res,rej)=>{const r=db.transaction('favFolders','readonly').objectStore('favFolders').getAll(); r.onsuccess=()=>res(r.result); r.onerror=e=>rej(e.target.error);}); }
+async function idbRemoveFavFolder(i) { const db=await idbOpen(); return new Promise((res,rej)=>{const tx=db.transaction('favFolders','readwrite'); tx.objectStore('favFolders').delete(i); tx.oncomplete=()=>res(); tx.onerror=e=>rej(e.target.error);}); }
+
+// ═══════════════════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════════════════
+const state = { folders:[], activeFolderIdx:-1, activeTrackIdx:-1, isPlaying:false, loopMode:'none', shuffleOn:false, shuffleOrder:[], shufflePos:-1, undoStack:[], silenceMinDur:0.2 };
+const favState = { folders: [null,null,null,null] };
+const audio = new Audio(); audio.preload = 'auto';
+let currentObjectUrl = null, isSeeking = false;
+
+// ═══════════════════════════════════════════════════════
+//  Favorites
+// ═══════════════════════════════════════════════════════
+async function setFavFolder(index) {
+  try {
+    const {ref,name} = await FS.pickDirectory();
+    favState.folders[index] = {ref,name}; await saveFavFolders();
+    FavCache.invalidate(index);
+    FavCache.refresh(index).then(() => updateFavButtonStates());
+    renderFavFolders();
+    toast(`收藏目录 ${index+1} 已设置: ${name}`, 'success');
+  } catch(e) { if (e.name==='AbortError'||e.message==='cancelled') return; toast('设置失败: '+e.message,'error'); }
+}
+async function clearFavFolder(index, e) {
+  e?.stopPropagation(); favState.folders[index]=null; FavCache._data[index]=new Set(); FavCache._loaded[index]=true;
+  await saveFavFolders(); renderFavFolders(); updateFavButtonStates(); toast(`已清除收藏目录 ${index+1}`,'success');
+}
+async function doFavorite(index) {
+  const folder=state.folders[state.activeFolderIdx];
+  if (!folder||state.activeTrackIdx<0) { toast('请先选择一个音频','warning'); return; }
+  const fav=favState.folders[index-1];
+  if (!fav) { toast(`请先在侧边栏设置收藏目录 ${index}`,'warning'); return; }
+  const fileEntry=folder.files[state.activeTrackIdx]; const fi=index-1;
+  try {
+    if (FavCache.has(fi, fileEntry.name)) {
+      const favFiles=await FS.listWavFiles(fav.ref); const ex=favFiles.find(f=>f.name===fileEntry.name);
+      if (ex) await FS.deleteFile(fav.ref, ex.name, ex.ref);
+      FavCache.remove(fi, fileEntry.name);
+      toast(`已从目录${index}取消收藏`, `fav${index}`);
+    } else {
+      const buf=await FS.readFileBuffer(fileEntry.ref);
+      await FS.writeFile(fav.ref, fileEntry.name, buf);
+      FavCache.add(fi, fileEntry.name);
+      toast(`已收藏到目录${index}`, `fav${index}`);
+    }
+    updateFavButtonStates();
+  } catch(e) { toast('操作失败: '+e.message,'error'); }
+}
+function updateFavButtonStates() {
+  const folder=state.folders[state.activeFolderIdx];
+  const fe=folder&&state.activeTrackIdx>=0?folder.files[state.activeTrackIdx]:null;
+  for (let i=0;i<4;i++) {
+    const btn=document.querySelector(`.fav-btn.fav-${i+1}`); if(!btn) continue;
+    btn.classList.toggle('favorited', !!(favState.folders[i]&&fe&&FavCache.has(i,fe.name)));
+  }
+}
+async function saveFavFolders() {
+  if (isNative) { localStorage.setItem('favFolders',JSON.stringify(favState.folders.map(f=>f?{uri:f.ref,name:f.name}:null))); }
+  else { for(let i=0;i<4;i++){if(favState.folders[i]) await idbSaveFavFolder(i,favState.folders[i].ref,favState.folders[i].name); else await idbRemoveFavFolder(i);} }
+}
+async function loadFavFolders() {
+  try {
+    if (isNative) {
+      const s=localStorage.getItem('favFolders'); if(s){const d=JSON.parse(s); for(let i=0;i<4;i++) if(d[i]) favState.folders[i]={ref:d[i].uri,name:d[i].name};}
+    } else {
+      const saved=await idbGetAllFavFolders();
+      for(const it of saved){if(it.index>=0&&it.index<4){try{if(await FS.requestPermission(it.handle)) favState.folders[it.index]={ref:it.handle,name:it.name};}catch(e){}}}
+    }
+    renderFavFolders();
+    for(let i=0;i<4;i++) FavCache.loadFromDisk(i);
+    updateFavButtonStates();
+    for(let i=0;i<4;i++) if(favState.folders[i]) FavCache.refresh(i).then(()=>updateFavButtonStates()).catch(()=>{});
+  } catch(e) { console.warn('Load fav error',e); }
+}
+function renderFavFolders() {
+  document.getElementById('favFolderList').innerHTML = favState.folders.map((f,i) => `
+    <div class="fav-folder-item" data-fav="${i+1}" onclick="setFavFolder(${i})" title="${f?f.name:'点击设置目录'}">
+      <span class="fav-badge">${i+1}</span>
+      <span class="fav-name ${f?'':'empty'}">${f?esc(f.name):'未设置'}</span>
+      ${f?`<button class="fav-clear" onclick="clearFavFolder(${i},event)" title="清除">✕</button>`:''}
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  Folder Management (cache-first)
+// ═══════════════════════════════════════════════════════
+async function addFolder() {
+  try {
+    const {ref,name} = await FS.pickDirectory();
+    if (state.folders.some(f=>f.name===name&&(isNative?f.ref===ref:true))) { toast('该文件夹已添加','warning'); return; }
+    const files = await FS.listWavFiles(ref);
+    FileCache.save(name, files);
+    const folder = {ref,name,files,dbId:null};
+    state.folders.push(folder);
+    try { const id=await FS.saveFolder(ref,name); if(id!=null) folder.dbId=id; } catch(e){}
+    renderFolders(); selectFolder(state.folders.length-1);
+    toast(`已添加「${name}」- ${files.length} 个 WAV 文件`,'success');
+  } catch(e) { if(e.message==='cancelled'||e.name==='AbortError') return; toast('无法打开文件夹: '+e.message,'error'); }
+}
+
+async function initSavedFolders() {
+  try {
+    const saved = await FS.getSavedFolders();
+    for (const item of saved) {
+      const cached = FileCache.load(item.name);
+      const folder = { ref:item.ref, name:item.name, files:[], dbId:item.dbId||null };
+      if (isNative && cached && cached.length > 0) {
+        folder.files = cached.map(f => ({ ref: f.ref, name: f.name }));
+      } else if (!isNative) {
+        try {
+          const ok = await FS.requestPermission(item.ref);
+          if (ok) {
+            const files = await FS.listWavFiles(item.ref);
+            folder.files = files;
+            FileCache.save(item.name, files);
+          }
+        } catch(e) { console.warn('Scan failed', item.name, e); }
+      }
+      state.folders.push(folder);
+    }
+    renderFolders();
+    if (state.folders.length > 0) {
+      selectFolder(0);
+      if (state.folders[0].files.length > 0) {
+        playTrack(0);
+      }
+    }
+  } catch(e) { console.warn('Init folders failed',e); }
+}
+
+async function bgRefreshFolder(idx) {
+  const folder = state.folders[idx]; if(!folder) return;
+  try {
+    if (!isNative) { const ok=await FS.requestPermission(folder.ref); if(!ok) return; }
+    const fresh = await FS.listWavFiles(folder.ref);
+    const oldNames = folder.files.map(f=>f.name).join('\n');
+    const newNames = fresh.map(f=>f.name).join('\n');
+
+    if (oldNames === newNames) {
+      const freshMap = new Map(fresh.map(f => [f.name, f.ref]));
+      for (const f of folder.files) { const r = freshMap.get(f.name); if (r) f.ref = r; }
+      FileCache.save(folder.name, folder.files);
+    } else {
+      const playingName = (state.activeFolderIdx === idx && state.activeTrackIdx >= 0)
+        ? folder.files[state.activeTrackIdx]?.name : null;
+      folder.files = fresh;
+      FileCache.save(folder.name, fresh);
+      if (playingName && state.activeFolderIdx === idx) {
+        const ni = fresh.findIndex(f => f.name === playingName);
+        if (ni >= 0) state.activeTrackIdx = ni;
+      }
+      if (state.activeFolderIdx === idx) renderTracks();
+      renderFolders();
+    }
+  } catch(e) { console.warn('Refresh error',folder.name,e); }
+}
+
+async function manualRefreshFolder(idx, e) {
+  e?.stopPropagation();
+  const btn = e?.target?.closest('.folder-refresh');
+  if (btn) btn.classList.add('spinning');
+  await bgRefreshFolder(idx);
+  if (btn) setTimeout(()=>btn.classList.remove('spinning'), 300);
+  const f=state.folders[idx]; if(f) toast(`已刷新「${f.name}」- ${f.files.length} 个文件`,'success');
+}
+
+async function removeFolder(idx, e) {
+  e?.stopPropagation(); const folder=state.folders[idx];
+  FileCache.remove(folder.name);
+  try { if(isNative) await FS.removeFolder(folder.ref); else if(folder.dbId) await idbRemoveFolder(folder.dbId); } catch(e){}
+  if(state.activeFolderIdx===idx){stopPlayback();state.activeFolderIdx=-1;state.activeTrackIdx=-1;} else if(state.activeFolderIdx>idx) state.activeFolderIdx--;
+  state.folders.splice(idx,1); renderFolders(); renderTracks(); toast(`已移除「${folder.name}」`,'success');
+}
+
+function selectFolder(idx) {
+  state.activeFolderIdx=idx; state.activeTrackIdx=-1; resetShuffle(); renderFolders(); renderTracks();
+  const sb=document.getElementById('sidebar'); if(sb.classList.contains('open')) toggleSidebar();
+}
+function syncFolderCache(idx) { const f=state.folders[idx]; if(f) FileCache.save(f.name,f.files); }
+
+// ═══════════════════════════════════════════════════════
+//  Playback
+// ═══════════════════════════════════════════════════════
+async function playTrack(idx) {
+  const folder=state.folders[state.activeFolderIdx];
+  if(!folder||idx<0||idx>=folder.files.length) return;
+  state.activeTrackIdx=idx;
+  const fe=folder.files[idx];
+  if(!fe.ref){ await bgRefreshFolder(state.activeFolderIdx); const r=state.folders[state.activeFolderIdx]?.files[idx]; if(!r||!r.ref){toast('文件不可用','error');return;} fe.ref=r.ref;}
+  try {
+    if(currentObjectUrl&&!isNative) URL.revokeObjectURL(currentObjectUrl);
+    const url=await FS.getPlaybackUrl(fe.ref); currentObjectUrl=url; audio.src=url; audio.play();
+    state.isPlaying=true; updatePlayBtn(); renderTracks();
+    const title=fe.name.replace(/\.wav$/i,'');
+    document.getElementById('playerTitle').textContent=title;
+    document.getElementById('playerFolder').textContent=folder.name;
+    updateMediaSession(title,folder.name); updateFavButtonStates();
+    if(_pbReady){savePlaybackState();} startPbSave();
+  } catch(e) { toast('无法播放: '+e.message,'error'); }
+}
+function togglePlay() {
+  if(!audio.src||audio.src===''){if(state.activeFolderIdx>=0){const f=state.folders[state.activeFolderIdx];if(f.files.length>0){if(state.shuffleOn){resetShuffle();playTrack(state.shuffleOrder[0]);}else playTrack(0);}} return;}
+  if(state.isPlaying){audio.pause();state.isPlaying=false;if(_pbReady)savePlaybackState();stopPbSave();} else{audio.play();state.isPlaying=true;startPbSave();} updatePlayBtn();
+}
+function stopPlayback() {
+  audio.pause();audio.currentTime=0; if(currentObjectUrl&&!isNative) URL.revokeObjectURL(currentObjectUrl);
+  currentObjectUrl=null;audio.src='';state.isPlaying=false;state.activeTrackIdx=-1;updatePlayBtn();
+  document.getElementById('playerTitle').textContent='未选择音频';document.getElementById('playerFolder').textContent='';
+  document.getElementById('progressFill').style.width='0%';document.getElementById('timeCurrent').textContent='0:00';document.getElementById('timeTotal').textContent='0:00';
+}
+function nextTrack() {
+  const f=state.folders[state.activeFolderIdx]; if(!f) return;
+  if(state.shuffleOn){state.shufflePos++;if(state.shufflePos>=state.shuffleOrder.length){if(state.loopMode==='all'||state.loopMode==='one'){state.shufflePos=0;}else{stopPlayback();return;}} playTrack(state.shuffleOrder[state.shufflePos]);}
+  else{let n=state.activeTrackIdx+1;if(n>=f.files.length){if(state.loopMode==='all'||state.loopMode==='one')n=0;else{stopPlayback();return;}} playTrack(n);}
+}
+function prevTrack() {
+  const f=state.folders[state.activeFolderIdx]; if(!f) return;
+  if(audio.currentTime>17){audio.currentTime=0;return;}
+  if(state.shuffleOn){state.shufflePos--;if(state.shufflePos<0)state.shufflePos=(state.loopMode==='all'||state.loopMode==='one')?state.shuffleOrder.length-1:0;playTrack(state.shuffleOrder[state.shufflePos]);}
+  else{let p=state.activeTrackIdx-1;if(p<0)p=(state.loopMode==='all'||state.loopMode==='one')?f.files.length-1:0;playTrack(p);}
+}
+function cycleLoopMode(){const m=['none','all','one'];state.loopMode=m[(m.indexOf(state.loopMode)+1)%3];updateLoopBtn();toast({none:'不循环',all:'列表循环',one:'单曲循环'}[state.loopMode],'success');}
+function togglePlayMode(mode){if(mode==='shuffle'){state.shuffleOn=!state.shuffleOn;if(state.shuffleOn)resetShuffle();updateShuffleBtn();toast(state.shuffleOn?'随机播放已开启':'顺序播放','success');}}
+function resetShuffle(){const f=state.folders[state.activeFolderIdx];if(!f)return;state.shuffleOrder=[...Array(f.files.length).keys()];for(let i=state.shuffleOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[state.shuffleOrder[i],state.shuffleOrder[j]]=[state.shuffleOrder[j],state.shuffleOrder[i]];}state.shufflePos=-1;}
+
+// ── Playback State Persistence ──
+function savePlaybackState(){try{if(state.activeFolderIdx<0||state.activeTrackIdx<0)return;const f=state.folders[state.activeFolderIdx];if(!f)return;const fe=f.files[state.activeTrackIdx];if(!fe)return;const d={folderName:f.name,trackName:fe.name,position:audio.currentTime||0,shuffleOn:state.shuffleOn,shuffleOrder:state.shuffleOrder,shufflePos:state.shufflePos,loopMode:state.loopMode};localStorage.setItem('pb_state',JSON.stringify(d));}catch(e){}}
+let _pbSaveTimer=null,_pbReady=false;setTimeout(()=>{_pbReady=true;},20000);function startPbSave(){stopPbSave();_pbSaveTimer=setInterval(()=>{if(_pbReady)savePlaybackState();},5000);}function stopPbSave(){if(_pbSaveTimer){clearInterval(_pbSaveTimer);_pbSaveTimer=null;}}
+async function restorePlayback(){try{const raw=localStorage.getItem('pb_state');if(!raw){toast('没有可恢复的播放记录','warning');return;}const d=JSON.parse(raw);const fi=state.folders.findIndex(f=>f.name===d.folderName);if(fi<0){toast('找不到文件夹: '+d.folderName,'warning');return;}stopPlayback();state.activeFolderIdx=fi;renderFolders();renderTracks();const folder=state.folders[fi];const ti=folder.files.findIndex(f=>f.name===d.trackName);if(ti<0){toast('找不到文件: '+d.trackName,'warning');return;}state.loopMode=d.loopMode||'none';updateLoopBtn();if(d.shuffleOn&&d.shuffleOrder){state.shuffleOn=true;state.shuffleOrder=d.shuffleOrder;state.shufflePos=d.shufflePos;}else{state.shuffleOn=false;}updateShuffleBtn();if(d.position>0){audio.addEventListener('canplay',function _seek(){audio.currentTime=d.position;audio.removeEventListener('canplay',_seek);},{once:true});}await playTrack(ti);toast('已恢复播放','success');}catch(e){toast('恢复失败: '+e.message,'error');}}
+
+audio.addEventListener('timeupdate',()=>{if(isSeeking||!audio.duration)return;document.getElementById('progressFill').style.width=(audio.currentTime/audio.duration*100)+'%';document.getElementById('timeCurrent').textContent=fmtTime(audio.currentTime);});
+audio.addEventListener('loadedmetadata',()=>{document.getElementById('timeTotal').textContent=fmtTime(audio.duration);});
+audio.addEventListener('ended',()=>{if(state.loopMode==='one'){audio.currentTime=0;audio.play();}else nextTrack();});
+document.getElementById('progressWrap').addEventListener('click',e=>{if(!audio.duration)return;const r=e.currentTarget.getBoundingClientRect();audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration;});
+(function(){const pw=document.getElementById('progressWrap');pw.addEventListener('touchstart',e=>{isSeeking=true;sk(e);},{passive:true});pw.addEventListener('touchmove',e=>{if(isSeeking)sk(e);},{passive:true});pw.addEventListener('touchend',()=>{isSeeking=false;});function sk(e){if(!audio.duration)return;const r=pw.getBoundingClientRect();const p=Math.max(0,Math.min(1,(e.touches[0].clientX-r.left)/r.width));audio.currentTime=p*audio.duration;document.getElementById('progressFill').style.width=(p*100)+'%';}})();
+
+// ═══════════════════════════════════════════════════════
+//  WAV Utilities
+// ═══════════════════════════════════════════════════════
+function parseWavHeader(buffer){const v=new DataView(buffer);const nc=v.getUint16(22,true);const sr=v.getUint32(24,true);const bps=v.getUint16(34,true);let o=12;while(o<buffer.byteLength-8){const id=String.fromCharCode(v.getUint8(o),v.getUint8(o+1),v.getUint8(o+2),v.getUint8(o+3));const sz=v.getUint32(o+4,true);if(id==='data')return{numChannels:nc,sampleRate:sr,bitsPerSample:bps,dataOffset:o+8,dataSize:sz};o+=8+sz;if(o%2!==0)o++;}throw new Error('未找到 data 块');}
+function createWavBuffer(sampleBytes,numChannels,sampleRate,bitsPerSample){const ds=sampleBytes.byteLength;const buf=new ArrayBuffer(44+ds);const v=new DataView(buf);const w=(off,s)=>{for(let i=0;i<s.length;i++)v.setUint8(off+i,s.charCodeAt(i));};const bps=bitsPerSample/8;w(0,'RIFF');v.setUint32(4,36+ds,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,numChannels,true);v.setUint32(24,sampleRate,true);v.setUint32(28,sampleRate*numChannels*bps,true);v.setUint16(32,numChannels*bps,true);v.setUint16(34,bitsPerSample,true);w(36,'data');v.setUint32(40,ds,true);new Uint8Array(buf,44).set(new Uint8Array(sampleBytes));return buf;}
+
+function convertPcmData(buffer,header,tgtCh,tgtRate,tgtBits){const{numChannels:sCh,sampleRate:sR,bitsPerSample:sB,dataOffset:dO,dataSize:dS}=header;if(sCh===tgtCh&&sR===tgtRate&&sB===tgtBits)return buffer.slice(dO,dO+dS);const sBps=sB/8,tBps=tgtBits/8,sFc=dS/(sBps*sCh),sv=new DataView(buffer);function rd(p,b){if(b===8)return(sv.getUint8(p)-128)/128;if(b===16)return sv.getInt16(p,true)/32768;if(b===24)return((sv.getUint8(p)|(sv.getUint8(p+1)<<8)|(sv.getInt8(p+2)<<16)))/8388608;if(b===32)return sv.getInt32(p,true)/2147483648;return 0;}
+const sf=[];for(let c=0;c<sCh;c++)sf.push(new Float64Array(sFc));for(let i=0;i<sFc;i++){const fp=dO+i*sBps*sCh;for(let c=0;c<sCh;c++)sf[c][i]=rd(fp+c*sBps,sB);}
+let cf;if(sCh===tgtCh)cf=sf;else if(sCh===1&&tgtCh===2)cf=[sf[0],new Float64Array(sf[0])];else if(sCh===2&&tgtCh===1){const m=new Float64Array(sFc);for(let i=0;i<sFc;i++)m[i]=(sf[0][i]+sf[1][i])/2;cf=[m];}else{cf=[];for(let c=0;c<tgtCh;c++)cf.push(c<sCh?sf[c]:new Float64Array(sFc));}
+let rf;const cl=cf[0].length;if(sR===tgtRate)rf=cf;else{const tFc=Math.round(cl*tgtRate/sR);rf=[];for(let c=0;c<tgtCh;c++){const o=new Float64Array(tFc);const r=sR/tgtRate;for(let i=0;i<tFc;i++){const sp=i*r;const i0=Math.floor(sp);const i1=Math.min(i0+1,cl-1);const fr=sp-i0;o[i]=cf[c][i0]*(1-fr)+cf[c][i1]*fr;}rf.push(o);}}
+const tFc=rf[0].length;const ob=new ArrayBuffer(tFc*tgtCh*tBps);const ov=new DataView(ob);function wr(p,val,b){val=Math.max(-1,Math.min(1,val));if(b===8)ov.setUint8(p,Math.round(val*127+128));else if(b===16)ov.setInt16(p,Math.round(val*32767),true);else if(b===24){const v=Math.round(val*8388607);ov.setUint8(p,v&0xFF);ov.setUint8(p+1,(v>>8)&0xFF);ov.setInt8(p+2,(v>>16));}else if(b===32)ov.setInt32(p,Math.round(val*2147483647),true);}
+for(let i=0;i<tFc;i++){const fp=i*tgtCh*tBps;for(let c=0;c<tgtCh;c++)wr(fp+c*tBps,rf[c][i],tgtBits);}return ob;}
+
+function detectSilence(buffer,header,thresholdDb=-40,minDurSec=0.2){const{numChannels:nc,sampleRate:sr,bitsPerSample:bps,dataOffset:dO,dataSize:dS}=header;const byps=bps/8;const total=dS/(byps*nc);const v=new DataView(buffer);const thr=Math.pow(10,thresholdDb/20);function gs(idx){const bp=dO+idx*byps*nc;let s=0;for(let c=0;c<nc;c++){const p=bp+c*byps;if(p+byps>buffer.byteLength)return 0;let val;if(bps===16)val=v.getInt16(p,true)/32768;else if(bps===24)val=((v.getUint8(p)|(v.getUint8(p+1)<<8)|(v.getInt8(p+2)<<16)))/8388608;else if(bps===32)val=v.getInt32(p,true)/2147483648;else val=(v.getUint8(p)-128)/128;s+=Math.abs(val);}return s/nc;}
+const ws=Math.floor(sr*0.01);const msw=Math.ceil(minDurSec/0.01);const regs=[];let ss=-1,sc=0;for(let i=0;i<total;i+=ws){let mx=0;const end=Math.min(i+ws,total);for(let j=i;j<end;j++){const a=gs(j);if(a>mx)mx=a;}if(mx<thr){if(ss===-1)ss=i;sc++;}else{if(sc>=msw)regs.push({start:ss,end:i});ss=-1;sc=0;}}if(sc>=msw)regs.push({start:ss,end:total});return regs;}
+
+// ═══════════════════════════════════════════════════════
+//  Split / Merge / Delete / Undo
+// ═══════════════════════════════════════════════════════
+async function doSplit(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('请先选择一个音频','warning');return;}const idx=state.activeTrackIdx;const fe=folder.files[idx];toast('正在分析静音区域...','success');try{const buf=await FS.readFileBuffer(fe.ref);const h=parseWavHeader(buf);const sil=detectSilence(buf,h,-40,state.silenceMinDur);if(sil.length===0){toast(`未检测到 ≥${state.silenceMinDur.toFixed(2)} 秒的静音区域`,'warning');return;}const{numChannels:nc,sampleRate:sr,bitsPerSample:bps,dataOffset:dO,dataSize:dS}=h;const bpf=(bps/8)*nc;const total=dS/bpf;const sp=sil.map(s=>Math.floor((s.start+s.end)/2));const bd=[0,...sp,total];const bn=fe.name.replace(/\.wav$/i,'');stopPlayback();const nf=[];for(let i=0;i<bd.length-1;i++){const st=bd[i],en=bd[i+1];const ss=dO+st*bpf;const sl=(en-st)*bpf;const sd=buf.slice(ss,ss+sl);const nb=createWavBuffer(sd,nc,sr,bps);const nn=`${bn}_${i+1}.wav`;const r=await FS.writeFile(folder.ref,nn,nb);nf.push({ref:r.ref,name:r.name||nn});}state.undoStack.push({type:'split',folderIdx:state.activeFolderIdx,origName:fe.name,origRef:fe.ref,origData:buf.slice(0),origTrackIdx:idx,newFiles:nf.map(f=>({name:f.name,ref:f.ref}))});await FS.deleteFile(folder.ref,fe.name,fe.ref);folder.files.splice(idx,1,...nf);syncFolderCache(state.activeFolderIdx);renderTracks();playTrack(idx);toast(`已切分为 ${nf.length} 段`,'success');}catch(e){toast('切分失败: '+e.message,'error');console.error(e);}}
+
+async function doMerge(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('请先选择一个音频','warning');return;}if(state.activeTrackIdx>=folder.files.length-1){toast('没有下一个文件可合并','warning');return;}const idx=state.activeTrackIdx;const f1=folder.files[idx],f2=folder.files[idx+1];toast('正在合并...','success');try{const b1=await FS.readFileBuffer(f1.ref);const b2=await FS.readFileBuffer(f2.ref);const h1=parseWavHeader(b1),h2=parseWavHeader(b2);const tc=Math.max(h1.numChannels,h2.numChannels);const tr=Math.max(h1.sampleRate,h2.sampleRate);const tb=Math.max(h1.bitsPerSample,h2.bitsPerSample);const p1=convertPcmData(b1,h1,tc,tr,tb);const p2=convertPcmData(b2,h2,tc,tr,tb);const cb=new Uint8Array(p1.byteLength+p2.byteLength);cb.set(new Uint8Array(p1),0);cb.set(new Uint8Array(p2),p1.byteLength);const mb=createWavBuffer(cb.buffer,tc,tr,tb);stopPlayback();state.undoStack.push({type:'merge',folderIdx:state.activeFolderIdx,trackIdx:idx,file1Name:f1.name,file1Ref:f1.ref,file1Data:b1.slice(0),file2Name:f2.name,file2Ref:f2.ref,file2Data:b2.slice(0)});await FS.deleteFile(folder.ref,f1.name,f1.ref);await FS.deleteFile(folder.ref,f2.name,f2.ref);const r=await FS.writeFile(folder.ref,f1.name,mb);folder.files.splice(idx,2,{ref:r.ref,name:r.name||f1.name});syncFolderCache(state.activeFolderIdx);renderTracks();playTrack(idx);const cv=(h1.numChannels!==h2.numChannels||h1.sampleRate!==h2.sampleRate||h1.bitsPerSample!==h2.bitsPerSample);toast(cv?`合并完成（已统一为 ${tr}Hz/${tb}bit/${tc}ch）`:'合并完成','success');}catch(e){toast('合并失败: '+e.message,'error');console.error(e);}}
+
+async function doDelete(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('请先选择一个音频','warning');return;}const idx=state.activeTrackIdx;const fe=folder.files[idx];try{const d=await FS.readFileBuffer(fe.ref);stopPlayback();state.undoStack.push({type:'delete',folderIdx:state.activeFolderIdx,trackIdx:idx,fileName:fe.name,fileRef:fe.ref,fileData:d.slice(0)});await FS.deleteFile(folder.ref,fe.name,fe.ref);folder.files.splice(idx,1);syncFolderCache(state.activeFolderIdx);renderTracks();if(folder.files.length>0)playTrack(Math.min(idx,folder.files.length-1));toast(`已删除「${fe.name}」`,'success');}catch(e){toast('删除失败: '+e.message,'error');}}
+
+async function doUndo(){if(state.undoStack.length===0){toast('没有可撤回的操作','warning');return;}const a=state.undoStack.pop();const folder=state.folders[a.folderIdx];if(!folder){toast('文件夹已移除，无法撤回','error');return;}try{stopPlayback();if(a.type==='split'){for(const f of a.newFiles){try{await FS.deleteFile(folder.ref,f.name,f.ref);}catch(e){}}const r=await FS.writeFile(folder.ref,a.origName,a.origData);folder.files=folder.files.filter(f=>!a.newFiles.some(nf=>nf.name===f.name));folder.files.splice(a.origTrackIdx,0,{ref:r.ref,name:r.name||a.origName});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.origTrackIdx);toast('已撤回切分操作','success');}else if(a.type==='merge'){const mf=folder.files[a.trackIdx];if(mf){try{await FS.deleteFile(folder.ref,mf.name,mf.ref);}catch(e){}}const r1=await FS.writeFile(folder.ref,a.file1Name,a.file1Data);const r2=await FS.writeFile(folder.ref,a.file2Name,a.file2Data);folder.files.splice(a.trackIdx,1,{ref:r1.ref,name:r1.name||a.file1Name},{ref:r2.ref,name:r2.name||a.file2Name});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.trackIdx);toast('已撤回合并操作','success');}else if(a.type==='delete'){const r=await FS.writeFile(folder.ref,a.fileName,a.fileData);folder.files.splice(a.trackIdx,0,{ref:r.ref,name:r.name||a.fileName});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.trackIdx);toast(`已恢复「${a.fileName}」`,'success');}}catch(e){toast('撤回失败: '+e.message,'error');}}
+
+// ═══════════════════════════════════════════════════════
+//  Keyboard Shortcuts
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='1'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(1);}else if(e.key==='2'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(2);}else if(e.key==='3'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(3);}else if(e.key==='4'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(4);}else if(e.key==='9'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doSplit();}else if(e.key==='0'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doMerge();}else if(e.key==='Delete'){e.preventDefault();doDelete();}else if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();doUndo();}else if(e.key===' '){e.preventDefault();togglePlay();}else if(e.key==='ArrowLeft'){audio.currentTime=Math.max(0,audio.currentTime-5);}else if(e.key==='ArrowRight'){audio.currentTime=Math.min(audio.duration||0,audio.currentTime+5);}});
+
+// ═══════════════════════════════════════════════════════
+//  Rendering
+// ═══════════════════════════════════════════════════════
+function renderFolders(){const c=document.getElementById('folderList');if(state.folders.length===0){c.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">尚未添加文件夹</div>';return;}c.innerHTML=state.folders.map((f,i)=>`<div class="folder-item ${i===state.activeFolderIdx?'active':''}" onclick="selectFolder(${i})"><span class="folder-icon">📂</span><span class="folder-name">${esc(f.name)}</span><span class="folder-count">${f.files.length}</span><button class="folder-refresh" onclick="manualRefreshFolder(${i},event)" title="刷新">🔄</button><button class="folder-remove" onclick="removeFolder(${i},event)" title="移除">✕</button></div>`).join('');}
+
+function renderTracks(){const area=document.getElementById('trackArea');if(state.activeFolderIdx<0){area.innerHTML='<div class="empty-state"><div class="icon">🎵</div><p>点击左侧「添加文件夹」开始</p></div>';return;}const folder=state.folders[state.activeFolderIdx];if(folder.files.length===0){area.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>该文件夹内没有 WAV 文件</p></div>';return;}area.innerHTML=`<div class="track-area-header"><h2>${esc(folder.name)}</h2><span class="track-count">${folder.files.length} 首</span></div><ul class="track-list">${folder.files.map((f,i)=>`<li class="track-item ${i===state.activeTrackIdx?'active playing':''}" onclick="playTrack(${i})"><span class="track-index">${i===state.activeTrackIdx&&state.isPlaying?'▶':(i+1)}</span><span class="track-name">${esc(f.name.replace(/\.wav$/i,''))}</span></li>`).join('')}</ul>`;}
+
+function updatePlayBtn(){document.getElementById('btnPlay').textContent=state.isPlaying?'⏸':'▶';}
+function updateLoopBtn(){const b=document.getElementById('btnLoop');b.classList.toggle('active',state.loopMode!=='none');b.innerHTML=state.loopMode==='one'?'🔂':'🔁';}
+function updateShuffleBtn(){document.getElementById('btnShuffle').classList.toggle('active',state.shuffleOn);}
+
+// ═══════════════════════════════════════════════════════
+//  Media Session
+// ═══════════════════════════════════════════════════════
+const MBPlugin=isNative?window.Capacitor.Plugins.MediaButtonPlugin:null;
+function updateMediaSession(title,album){if(isNative&&MBPlugin){MBPlugin.updateState({isPlaying:state.isPlaying,title:title||'',album:album||'',duration:audio.duration||0,position:audio.currentTime||0}).catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:title||'未知音频',artist:'WAV Player',album:album||''});navigator.mediaSession.playbackState=state.isPlaying?'playing':'paused';}}
+let nst=null;function startNSS(){if(!isNative||!MBPlugin)return;stopNSS();nst=setInterval(()=>{if(state.isPlaying&&audio.duration){const f=state.folders[state.activeFolderIdx];const fe=f&&f.files[state.activeTrackIdx];MBPlugin.updateState({isPlaying:true,title:fe?fe.name.replace(/\.wav$/i,''):'',album:f?f.name:'',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}},3000);}function stopNSS(){if(nst){clearInterval(nst);nst=null;}}
+function initMediaSession(){if(isNative&&MBPlugin){window.Capacitor.Plugins.MediaButtonPlugin.addListener('mediaButton',d=>{switch(d.action){case'play':if(!state.isPlaying)togglePlay();break;case'pause':if(state.isPlaying)togglePlay();break;case'nexttrack':nextTrack();break;case'previoustrack':prevTrack();break;case'stop':stopPlayback();break;case'seekto':if(d.position!=null)audio.currentTime=d.position;break;}});MBPlugin.activate().catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.setActionHandler('play',()=>{if(!state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('pause',()=>{if(state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('previoustrack',()=>prevTrack());navigator.mediaSession.setActionHandler('nexttrack',()=>nextTrack());navigator.mediaSession.setActionHandler('seekbackward',d=>{audio.currentTime=Math.max(0,audio.currentTime-(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekforward',d=>{audio.currentTime=Math.min(audio.duration||0,audio.currentTime+(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekto',d=>{audio.currentTime=d.seekTime;});navigator.mediaSession.setActionHandler('stop',()=>stopPlayback());}}
+audio.addEventListener('play',()=>{if(isNative&&MBPlugin){MBPlugin.activate().catch(()=>{});startNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='playing';});
+audio.addEventListener('pause',()=>{if(isNative&&MBPlugin){MBPlugin.deactivate().catch(()=>{});stopNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='paused';});
+
+// ═══════════════════════════════════════════════════════
+//  Utilities
+// ═══════════════════════════════════════════════════════
+function fmtTime(s){if(!s||isNaN(s))return'0:00';return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');}
+function esc(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
+function toast(msg,type='success'){const c=document.getElementById('toastContainer');const el=document.createElement('div');el.className='toast '+type;el.textContent=msg;c.appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity 0.3s';setTimeout(()=>el.remove(),300);},2500);}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('show');}
+
+// ═══════════════════════════════════════════════════════
+//  Split Settings
+// ═══════════════════════════════════════════════════════
+function openSplitSettings(){document.getElementById('splitMinDurInput').value=state.silenceMinDur.toFixed(2);document.getElementById('splitSettingsModal').classList.add('show');setTimeout(()=>{const i=document.getElementById('splitMinDurInput');i.focus();i.select();},50);}
+function closeSplitSettings(){document.getElementById('splitSettingsModal').classList.remove('show');}
+function saveSplitSettings(){const raw=document.getElementById('splitMinDurInput').value;const v=parseFloat(raw);if(isNaN(v)||v<0.01){toast('请输入不小于 0.01 秒的数值','warning');return;}const rounded=Math.round(v*100)/100;state.silenceMinDur=rounded;try{localStorage.setItem('splitMinDur',String(rounded));}catch(e){}closeSplitSettings();toast(`静音最小时长已设为 ${rounded.toFixed(2)} 秒`,'success');}
+function loadSplitSettings(){try{const s=localStorage.getItem('splitMinDur');if(s!==null){const v=parseFloat(s);if(!isNaN(v)&&v>=0.01)state.silenceMinDur=Math.round(v*100)/100;}}catch(e){}}
+
+// ═══════════════════════════════════════════════════════
+//  Init
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  loadSplitSettings();
+  renderFolders(); renderTracks(); renderFavFolders();
+  updateLoopBtn(); updateShuffleBtn();
+  initMediaSession();
+  initSavedFolders();
+  loadFavFolders();
+  console.log('[WAV Player] Platform:',isNative?'Capacitor/Android':'Browser');
+});
+</script>
+</body>
+</html>
