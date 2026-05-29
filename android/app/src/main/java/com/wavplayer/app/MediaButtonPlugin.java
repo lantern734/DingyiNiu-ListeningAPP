@@ -6,6 +6,10 @@ import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -115,6 +119,13 @@ public class MediaButtonPlugin extends Plugin {
 
     @PluginMethod
     public void activate(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
         requestAudioFocus();
         mediaSession.setActive(true);
         updatePlaybackState(true);
