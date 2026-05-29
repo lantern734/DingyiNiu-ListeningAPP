@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>WAV 音频工作站</title>
+<title>WAV Audio Workstation</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -258,32 +258,32 @@ body {
 </head>
 <body>
 
-<button class="menu-toggle" onclick="toggleSidebar()" aria-label="菜单">☰</button>
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <h2>📁 文件夹</h2>
-      <button class="btn-add-folder" onclick="addFolder()">+ 添加文件夹</button>
+      <h2>📁 Folders</h2>
+      <button class="btn-add-folder" onclick="addFolder()">+ Add Folder</button>
     </div>
     <div class="folder-list" id="folderList"></div>
     <div class="fav-section">
-      <h3>⭐ 收藏目录</h3>
+      <h3>⭐ Favorites</h3>
       <div class="fav-folder-list" id="favFolderList"></div>
     </div>
     <div style="padding:8px 16px;border-top:1px solid var(--border);">
-      <button class="ctrl-btn-sm" onclick="restorePlayback()" title="恢复上次崩溃前的播放状态" style="width:100%;justify-content:center;font-size:11px;color:var(--text-dim);">↻ 恢复上次播放</button>
+      <button class="ctrl-btn-sm" onclick="restorePlayback()" title="Restore playback from before the last crash" style="width:100%;justify-content:center;font-size:11px;color:var(--text-dim);">↻ Restore Last Playback</button>
     </div>
   </aside>
 
   <div class="main-area">
     <div class="track-area" id="trackArea">
-      <div class="empty-state"><div class="icon">🎵</div><p>点击左侧「添加文件夹」开始</p><p style="font-size:12px;color:var(--text-dim)">选择包含 WAV 文件的文件夹</p></div>
+      <div class="empty-state"><div class="icon">🎵</div><p>Click "Add Folder" on the left to start</p><p style="font-size:12px;color:var(--text-dim)">Choose a folder containing WAV files</p></div>
     </div>
 
     <div class="player">
-      <div class="player-info"><div><div class="player-title" id="playerTitle">未选择音频</div><div class="player-folder-name" id="playerFolder"></div></div></div>
+      <div class="player-info"><div><div class="player-title" id="playerTitle">No audio selected</div><div class="player-folder-name" id="playerFolder"></div></div></div>
       <div class="progress-area">
         <span class="time-label" id="timeCurrent">0:00</span>
         <div class="progress-bar-wrap" id="progressWrap"><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div></div>
@@ -291,25 +291,25 @@ body {
       </div>
       <div>
         <div class="controls">
-          <button class="ctrl-btn" id="btnShuffle" onclick="togglePlayMode('shuffle')" title="随机播放">🔀</button>
-          <button class="ctrl-btn" onclick="prevTrack()" title="上一曲">⏮</button>
-          <button class="ctrl-btn primary" id="btnPlay" onclick="togglePlay()" title="播放/暂停">▶</button>
-          <button class="ctrl-btn" onclick="nextTrack()" title="下一曲">⏭</button>
-          <button class="ctrl-btn" id="btnLoop" onclick="cycleLoopMode()" title="循环模式">🔁</button>
+          <button class="ctrl-btn" id="btnShuffle" onclick="togglePlayMode('shuffle')" title="Shuffle">🔀</button>
+          <button class="ctrl-btn" onclick="prevTrack()" title="Previous">⏮</button>
+          <button class="ctrl-btn primary" id="btnPlay" onclick="togglePlay()" title="Play/Pause">▶</button>
+          <button class="ctrl-btn" onclick="nextTrack()" title="Next">⏭</button>
+          <button class="ctrl-btn" id="btnLoop" onclick="cycleLoopMode()" title="Loop mode">🔁</button>
         </div>
       </div>
       <div class="controls-secondary">
         <div class="fav-buttons">
-          <button class="fav-btn fav-1" onclick="doFavorite(1)" title="收藏到目录1">1<span class="key-hint">⭐</span></button>
-          <button class="fav-btn fav-2" onclick="doFavorite(2)" title="收藏到目录2">2<span class="key-hint">⭐</span></button>
-          <button class="fav-btn fav-3" onclick="doFavorite(3)" title="收藏到目录3">3<span class="key-hint">⭐</span></button>
-          <button class="fav-btn fav-4" onclick="doFavorite(4)" title="收藏到目录4">4<span class="key-hint">⭐</span></button>
+          <button class="fav-btn fav-1" onclick="doFavorite(1)" title="Add to favorites 1">1<span class="key-hint">⭐</span></button>
+          <button class="fav-btn fav-2" onclick="doFavorite(2)" title="Add to favorites 2">2<span class="key-hint">⭐</span></button>
+          <button class="fav-btn fav-3" onclick="doFavorite(3)" title="Add to favorites 3">3<span class="key-hint">⭐</span></button>
+          <button class="fav-btn fav-4" onclick="doFavorite(4)" title="Add to favorites 4">4<span class="key-hint">⭐</span></button>
         </div>
-        <button class="ctrl-btn-sm" onclick="doSplit()" title="切分当前音频">✂️ 切分 <span class="key">9</span></button>
-        <button class="ctrl-btn-sm" onclick="openSplitSettings()" title="切分静音时长设置" style="padding:6px 8px;">⚙️</button>
-        <button class="ctrl-btn-sm" onclick="doMerge()" title="合并当前与下一个">🔗 合并 <span class="key">0</span></button>
-        <button class="ctrl-btn-sm danger" onclick="doDelete()" title="删除当前音频">🗑️ 删除 <span class="key">Del</span></button>
-        <button class="ctrl-btn-sm" onclick="doUndo()" title="撤回上一步操作">↩️ 撤回 <span class="key">Ctrl+Z</span></button>
+        <button class="ctrl-btn-sm" onclick="doSplit()" title="Split current audio">✂️ Split <span class="key">9</span></button>
+        <button class="ctrl-btn-sm" onclick="openSplitSettings()" title="Split silence threshold settings" style="padding:6px 8px;">⚙️</button>
+        <button class="ctrl-btn-sm" onclick="doMerge()" title="Merge with next">🔗 Merge <span class="key">0</span></button>
+        <button class="ctrl-btn-sm danger" onclick="doDelete()" title="Delete current audio">🗑️ Delete <span class="key">Del</span></button>
+        <button class="ctrl-btn-sm" onclick="doUndo()" title="Undo last operation">↩️ Undo <span class="key">Ctrl+Z</span></button>
       </div>
     </div>
   </div>
@@ -318,15 +318,30 @@ body {
 
 <div class="modal-overlay" id="splitSettingsModal" onclick="if(event.target===this)closeSplitSettings()">
   <div class="modal">
-    <h3>切分设置</h3>
+    <h3>Split Settings</h3>
     <div class="modal-row">
-      <label for="splitMinDurInput">静音最小时长（秒）</label>
+      <label for="splitMinDurInput">Minimum silence duration (seconds)</label>
       <input type="number" id="splitMinDurInput" min="0.01" step="0.01" inputmode="decimal" onkeydown="if(event.key==='Enter'){event.preventDefault();saveSplitSettings();}else if(event.key==='Escape'){event.preventDefault();closeSplitSettings();}">
     </div>
-    <p class="modal-hint">检测到连续静音时长超过该值时进行切分。最小 0.01 秒。</p>
+    <p class="modal-hint">Splits at silences longer than this value. Minimum 0.01 seconds.</p>
     <div class="modal-buttons">
-      <button onclick="closeSplitSettings()">取消</button>
-      <button class="primary" onclick="saveSplitSettings()">确定</button>
+      <button onclick="closeSplitSettings()">Cancel</button>
+      <button class="primary" onclick="saveSplitSettings()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="removeFolderModal" onclick="if(event.target===this)closeRemoveFolderModal()">
+  <div class="modal">
+    <h3>Remove Folder</h3>
+    <p class="modal-hint" style="margin:0 0 16px;">Are you sure you want to delete folder "<span id="removeFolderName"></span>"?</p>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);margin-bottom:16px;cursor:pointer;">
+      <input type="checkbox" id="removeFolderDontAsk" style="width:auto;cursor:pointer;">
+      Don't ask again for this session
+    </label>
+    <div class="modal-buttons">
+      <button onclick="closeRemoveFolderModal()">Cancel</button>
+      <button class="primary" onclick="confirmRemoveFolder()">OK</button>
     </div>
   </div>
 </div>
@@ -344,7 +359,7 @@ const SafPlugin = isNative ? window.Capacitor.Plugins.SafPlugin : null;
 const FS = {
   async pickDirectory() {
     if (isNative) { const r = await SafPlugin.pickDirectory(); return { ref: r.uri, name: r.name }; }
-    if (!window.showDirectoryPicker) throw new Error('浏览器不支持文件夹选择');
+    if (!window.showDirectoryPicker) throw new Error('Browser does not support folder selection');
     const h = await window.showDirectoryPicker({ mode: 'readwrite' });
     return { ref: h, name: h.name };
   },
@@ -479,33 +494,33 @@ async function setFavFolder(index) {
     FavCache.invalidate(index);
     FavCache.refresh(index).then(() => updateFavButtonStates());
     renderFavFolders();
-    toast(`收藏目录 ${index+1} 已设置: ${name}`, 'success');
-  } catch(e) { if (e.name==='AbortError'||e.message==='cancelled') return; toast('设置失败: '+e.message,'error'); }
+    toast(`Favorite folder ${index+1} set: ${name}`, 'success');
+  } catch(e) { if (e.name==='AbortError'||e.message==='cancelled') return; toast('Failed to set: '+e.message,'error'); }
 }
 async function clearFavFolder(index, e) {
   e?.stopPropagation(); favState.folders[index]=null; FavCache._data[index]=new Set(); FavCache._loaded[index]=true;
-  await saveFavFolders(); renderFavFolders(); updateFavButtonStates(); toast(`已清除收藏目录 ${index+1}`,'success');
+  await saveFavFolders(); renderFavFolders(); updateFavButtonStates(); toast(`Cleared favorite folder ${index+1}`,'success');
 }
 async function doFavorite(index) {
   const folder=state.folders[state.activeFolderIdx];
-  if (!folder||state.activeTrackIdx<0) { toast('请先选择一个音频','warning'); return; }
+  if (!folder||state.activeTrackIdx<0) { toast('Please select an audio file first','warning'); return; }
   const fav=favState.folders[index-1];
-  if (!fav) { toast(`请先在侧边栏设置收藏目录 ${index}`,'warning'); return; }
+  if (!fav) { toast(`Please set favorite folder ${index} in the sidebar first`,'warning'); return; }
   const fileEntry=folder.files[state.activeTrackIdx]; const fi=index-1;
   try {
     if (FavCache.has(fi, fileEntry.name)) {
       const favFiles=await FS.listWavFiles(fav.ref); const ex=favFiles.find(f=>f.name===fileEntry.name);
       if (ex) await FS.deleteFile(fav.ref, ex.name, ex.ref);
       FavCache.remove(fi, fileEntry.name);
-      toast(`已从目录${index}取消收藏`, `fav${index}`);
+      toast(`Removed from favorite folder ${index}`, `fav${index}`);
     } else {
       const buf=await FS.readFileBuffer(fileEntry.ref);
       await FS.writeFile(fav.ref, fileEntry.name, buf);
       FavCache.add(fi, fileEntry.name);
-      toast(`已收藏到目录${index}`, `fav${index}`);
+      toast(`Added to favorite folder ${index}`, `fav${index}`);
     }
     updateFavButtonStates();
-  } catch(e) { toast('操作失败: '+e.message,'error'); }
+  } catch(e) { toast('Operation failed: '+e.message,'error'); }
 }
 function updateFavButtonStates() {
   const folder=state.folders[state.activeFolderIdx];
@@ -535,10 +550,10 @@ async function loadFavFolders() {
 }
 function renderFavFolders() {
   document.getElementById('favFolderList').innerHTML = favState.folders.map((f,i) => `
-    <div class="fav-folder-item" data-fav="${i+1}" onclick="setFavFolder(${i})" title="${f?f.name:'点击设置目录'}">
+    <div class="fav-folder-item" data-fav="${i+1}" onclick="setFavFolder(${i})" title="${f?f.name:'Click to set folder'}">
       <span class="fav-badge">${i+1}</span>
-      <span class="fav-name ${f?'':'empty'}">${f?esc(f.name):'未设置'}</span>
-      ${f?`<button class="fav-clear" onclick="clearFavFolder(${i},event)" title="清除">✕</button>`:''}
+      <span class="fav-name ${f?'':'empty'}">${f?esc(f.name):'Not set'}</span>
+      ${f?`<button class="fav-clear" onclick="clearFavFolder(${i},event)" title="Clear">✕</button>`:''}
     </div>
   `).join('');
 }
@@ -549,15 +564,15 @@ function renderFavFolders() {
 async function addFolder() {
   try {
     const {ref,name} = await FS.pickDirectory();
-    if (state.folders.some(f=>f.name===name&&(isNative?f.ref===ref:true))) { toast('该文件夹已添加','warning'); return; }
+    if (state.folders.some(f=>f.name===name&&(isNative?f.ref===ref:true))) { toast('This folder is already added','warning'); return; }
     const files = await FS.listWavFiles(ref);
     FileCache.save(name, files);
     const folder = {ref,name,files,dbId:null};
     state.folders.push(folder);
     try { const id=await FS.saveFolder(ref,name); if(id!=null) folder.dbId=id; } catch(e){}
     renderFolders(); selectFolder(state.folders.length-1);
-    toast(`已添加「${name}」- ${files.length} 个 WAV 文件`,'success');
-  } catch(e) { if(e.message==='cancelled'||e.name==='AbortError') return; toast('无法打开文件夹: '+e.message,'error'); }
+    toast(`Added "${name}" - ${files.length} WAV files`,'success');
+  } catch(e) { if(e.message==='cancelled'||e.name==='AbortError') return; toast('Cannot open folder: '+e.message,'error'); }
 }
 
 async function initSavedFolders() {
@@ -623,15 +638,46 @@ async function manualRefreshFolder(idx, e) {
   if (btn) btn.classList.add('spinning');
   await bgRefreshFolder(idx);
   if (btn) setTimeout(()=>btn.classList.remove('spinning'), 300);
-  const f=state.folders[idx]; if(f) toast(`已刷新「${f.name}」- ${f.files.length} 个文件`,'success');
+  const f=state.folders[idx]; if(f) toast(`Refreshed "${f.name}" - ${f.files.length} files`,'success');
 }
 
+// ── Folder-delete confirmation (session-only flag; resets when the app closes) ──
+let skipFolderRemoveConfirm = false;
+let _pendingRemoveIdx = -1;
+
 async function removeFolder(idx, e) {
-  e?.stopPropagation(); const folder=state.folders[idx];
+  e?.stopPropagation();
+  // 'Don't ask again' was ticked this session -> delete directly, no dialog
+  if (skipFolderRemoveConfirm) { performRemoveFolder(idx); return; }
+  // Otherwise show the dialog and remember which folder to delete
+  _pendingRemoveIdx = idx;
+  const folder = state.folders[idx];
+  document.getElementById('removeFolderName').textContent = folder ? folder.name : '';
+  document.getElementById('removeFolderDontAsk').checked = false;
+  document.getElementById('removeFolderModal').classList.add('show');
+}
+
+function closeRemoveFolderModal() {
+  document.getElementById('removeFolderModal').classList.remove('show');
+  _pendingRemoveIdx = -1;
+}
+
+function confirmRemoveFolder() {
+  if (document.getElementById('removeFolderDontAsk').checked) skipFolderRemoveConfirm = true;
+  const idx = _pendingRemoveIdx;
+  document.getElementById('removeFolderModal').classList.remove('show');
+  _pendingRemoveIdx = -1;
+  if (idx >= 0) performRemoveFolder(idx);
+}
+
+// Actually perform the deletion (moved verbatim from the old removeFolder; toast in English, plus a null guard)
+async function performRemoveFolder(idx) {
+  const folder = state.folders[idx];
+  if (!folder) return;
   FileCache.remove(folder.name);
   try { if(isNative) await FS.removeFolder(folder.ref); else if(folder.dbId) await idbRemoveFolder(folder.dbId); } catch(e){}
   if(state.activeFolderIdx===idx){stopPlayback();state.activeFolderIdx=-1;state.activeTrackIdx=-1;} else if(state.activeFolderIdx>idx) state.activeFolderIdx--;
-  state.folders.splice(idx,1); renderFolders(); renderTracks(); toast(`已移除「${folder.name}」`,'success');
+  state.folders.splice(idx,1); renderFolders(); renderTracks(); toast(`Removed "${folder.name}"`,'success');
 }
 
 function selectFolder(idx) {
@@ -648,7 +694,7 @@ async function playTrack(idx) {
   if(!folder||idx<0||idx>=folder.files.length) return;
   state.activeTrackIdx=idx;
   const fe=folder.files[idx];
-  if(!fe.ref){ await bgRefreshFolder(state.activeFolderIdx); const r=state.folders[state.activeFolderIdx]?.files[idx]; if(!r||!r.ref){toast('文件不可用','error');return;} fe.ref=r.ref;}
+  if(!fe.ref){ await bgRefreshFolder(state.activeFolderIdx); const r=state.folders[state.activeFolderIdx]?.files[idx]; if(!r||!r.ref){toast('File unavailable','error');return;} fe.ref=r.ref;}
   try {
     if(currentObjectUrl&&!isNative) URL.revokeObjectURL(currentObjectUrl);
     const url=await FS.getPlaybackUrl(fe.ref); currentObjectUrl=url; audio.src=url; audio.play();
@@ -658,7 +704,7 @@ async function playTrack(idx) {
     document.getElementById('playerFolder').textContent=folder.name;
     updateMediaSession(title,folder.name); updateFavButtonStates();
     if(_pbReady){savePlaybackState();} startPbSave();
-  } catch(e) { toast('无法播放: '+e.message,'error'); }
+  } catch(e) { toast('Cannot play: '+e.message,'error'); }
 }
 function togglePlay() {
   if(!audio.src||audio.src===''){if(state.activeFolderIdx>=0){const f=state.folders[state.activeFolderIdx];if(f.files.length>0){if(state.shuffleOn){resetShuffle();playTrack(state.shuffleOrder[0]);}else playTrack(0);}} return;}
@@ -667,7 +713,7 @@ function togglePlay() {
 function stopPlayback() {
   audio.pause();audio.currentTime=0; if(currentObjectUrl&&!isNative) URL.revokeObjectURL(currentObjectUrl);
   currentObjectUrl=null;audio.src='';state.isPlaying=false;state.activeTrackIdx=-1;updatePlayBtn();
-  document.getElementById('playerTitle').textContent='未选择音频';document.getElementById('playerFolder').textContent='';
+  document.getElementById('playerTitle').textContent='No audio selected';document.getElementById('playerFolder').textContent='';
   document.getElementById('progressFill').style.width='0%';document.getElementById('timeCurrent').textContent='0:00';document.getElementById('timeTotal').textContent='0:00';
 }
 function nextTrack() {
@@ -681,14 +727,14 @@ function prevTrack() {
   if(state.shuffleOn){state.shufflePos--;if(state.shufflePos<0)state.shufflePos=(state.loopMode==='all'||state.loopMode==='one')?state.shuffleOrder.length-1:0;playTrack(state.shuffleOrder[state.shufflePos]);}
   else{let p=state.activeTrackIdx-1;if(p<0)p=(state.loopMode==='all'||state.loopMode==='one')?f.files.length-1:0;playTrack(p);}
 }
-function cycleLoopMode(){const m=['none','all','one'];state.loopMode=m[(m.indexOf(state.loopMode)+1)%3];updateLoopBtn();toast({none:'不循环',all:'列表循环',one:'单曲循环'}[state.loopMode],'success');}
-function togglePlayMode(mode){if(mode==='shuffle'){state.shuffleOn=!state.shuffleOn;if(state.shuffleOn)resetShuffle();updateShuffleBtn();toast(state.shuffleOn?'随机播放已开启':'顺序播放','success');}}
+function cycleLoopMode(){const m=['none','all','one'];state.loopMode=m[(m.indexOf(state.loopMode)+1)%3];updateLoopBtn();toast({none:'Loop off',all:'Loop all',one:'Loop one'}[state.loopMode],'success');}
+function togglePlayMode(mode){if(mode==='shuffle'){state.shuffleOn=!state.shuffleOn;if(state.shuffleOn)resetShuffle();updateShuffleBtn();toast(state.shuffleOn?'Shuffle on':'Shuffle off','success');}}
 function resetShuffle(){const f=state.folders[state.activeFolderIdx];if(!f)return;state.shuffleOrder=[...Array(f.files.length).keys()];for(let i=state.shuffleOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[state.shuffleOrder[i],state.shuffleOrder[j]]=[state.shuffleOrder[j],state.shuffleOrder[i]];}state.shufflePos=-1;}
 
 // ── Playback State Persistence ──
 function savePlaybackState(){try{if(state.activeFolderIdx<0||state.activeTrackIdx<0)return;const f=state.folders[state.activeFolderIdx];if(!f)return;const fe=f.files[state.activeTrackIdx];if(!fe)return;const d={folderName:f.name,trackName:fe.name,position:audio.currentTime||0,shuffleOn:state.shuffleOn,shuffleOrder:state.shuffleOrder,shufflePos:state.shufflePos,loopMode:state.loopMode};localStorage.setItem('pb_state',JSON.stringify(d));}catch(e){}}
 let _pbSaveTimer=null,_pbReady=false;setTimeout(()=>{_pbReady=true;},20000);function startPbSave(){stopPbSave();_pbSaveTimer=setInterval(()=>{if(_pbReady)savePlaybackState();},5000);}function stopPbSave(){if(_pbSaveTimer){clearInterval(_pbSaveTimer);_pbSaveTimer=null;}}
-async function restorePlayback(){try{const raw=localStorage.getItem('pb_state');if(!raw){toast('没有可恢复的播放记录','warning');return;}const d=JSON.parse(raw);const fi=state.folders.findIndex(f=>f.name===d.folderName);if(fi<0){toast('找不到文件夹: '+d.folderName,'warning');return;}stopPlayback();state.activeFolderIdx=fi;renderFolders();renderTracks();const folder=state.folders[fi];const ti=folder.files.findIndex(f=>f.name===d.trackName);if(ti<0){toast('找不到文件: '+d.trackName,'warning');return;}state.loopMode=d.loopMode||'none';updateLoopBtn();if(d.shuffleOn&&d.shuffleOrder){state.shuffleOn=true;state.shuffleOrder=d.shuffleOrder;state.shufflePos=d.shufflePos;}else{state.shuffleOn=false;}updateShuffleBtn();if(d.position>0){audio.addEventListener('canplay',function _seek(){audio.currentTime=d.position;audio.removeEventListener('canplay',_seek);},{once:true});}await playTrack(ti);toast('已恢复播放','success');}catch(e){toast('恢复失败: '+e.message,'error');}}
+async function restorePlayback(){try{const raw=localStorage.getItem('pb_state');if(!raw){toast('No playback to restore','warning');return;}const d=JSON.parse(raw);const fi=state.folders.findIndex(f=>f.name===d.folderName);if(fi<0){toast('Folder not found: '+d.folderName,'warning');return;}stopPlayback();state.activeFolderIdx=fi;renderFolders();renderTracks();const folder=state.folders[fi];const ti=folder.files.findIndex(f=>f.name===d.trackName);if(ti<0){toast('File not found: '+d.trackName,'warning');return;}state.loopMode=d.loopMode||'none';updateLoopBtn();if(d.shuffleOn&&d.shuffleOrder){state.shuffleOn=true;state.shuffleOrder=d.shuffleOrder;state.shufflePos=d.shufflePos;}else{state.shuffleOn=false;}updateShuffleBtn();if(d.position>0){audio.addEventListener('canplay',function _seek(){audio.currentTime=d.position;audio.removeEventListener('canplay',_seek);},{once:true});}await playTrack(ti);toast('Playback restored','success');}catch(e){toast('Restore failed: '+e.message,'error');}}
 
 audio.addEventListener('timeupdate',()=>{if(isSeeking||!audio.duration)return;document.getElementById('progressFill').style.width=(audio.currentTime/audio.duration*100)+'%';document.getElementById('timeCurrent').textContent=fmtTime(audio.currentTime);});
 audio.addEventListener('loadedmetadata',()=>{document.getElementById('timeTotal').textContent=fmtTime(audio.duration);});
@@ -699,7 +745,7 @@ document.getElementById('progressWrap').addEventListener('click',e=>{if(!audio.d
 // ═══════════════════════════════════════════════════════
 //  WAV Utilities
 // ═══════════════════════════════════════════════════════
-function parseWavHeader(buffer){const v=new DataView(buffer);const nc=v.getUint16(22,true);const sr=v.getUint32(24,true);const bps=v.getUint16(34,true);let o=12;while(o<buffer.byteLength-8){const id=String.fromCharCode(v.getUint8(o),v.getUint8(o+1),v.getUint8(o+2),v.getUint8(o+3));const sz=v.getUint32(o+4,true);if(id==='data')return{numChannels:nc,sampleRate:sr,bitsPerSample:bps,dataOffset:o+8,dataSize:sz};o+=8+sz;if(o%2!==0)o++;}throw new Error('未找到 data 块');}
+function parseWavHeader(buffer){const v=new DataView(buffer);const nc=v.getUint16(22,true);const sr=v.getUint32(24,true);const bps=v.getUint16(34,true);let o=12;while(o<buffer.byteLength-8){const id=String.fromCharCode(v.getUint8(o),v.getUint8(o+1),v.getUint8(o+2),v.getUint8(o+3));const sz=v.getUint32(o+4,true);if(id==='data')return{numChannels:nc,sampleRate:sr,bitsPerSample:bps,dataOffset:o+8,dataSize:sz};o+=8+sz;if(o%2!==0)o++;}throw new Error('data chunk not found');}
 function createWavBuffer(sampleBytes,numChannels,sampleRate,bitsPerSample){const ds=sampleBytes.byteLength;const buf=new ArrayBuffer(44+ds);const v=new DataView(buf);const w=(off,s)=>{for(let i=0;i<s.length;i++)v.setUint8(off+i,s.charCodeAt(i));};const bps=bitsPerSample/8;w(0,'RIFF');v.setUint32(4,36+ds,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,numChannels,true);v.setUint32(24,sampleRate,true);v.setUint32(28,sampleRate*numChannels*bps,true);v.setUint16(32,numChannels*bps,true);v.setUint16(34,bitsPerSample,true);w(36,'data');v.setUint32(40,ds,true);new Uint8Array(buf,44).set(new Uint8Array(sampleBytes));return buf;}
 
 function convertPcmData(buffer,header,tgtCh,tgtRate,tgtBits){const{numChannels:sCh,sampleRate:sR,bitsPerSample:sB,dataOffset:dO,dataSize:dS}=header;if(sCh===tgtCh&&sR===tgtRate&&sB===tgtBits)return buffer.slice(dO,dO+dS);const sBps=sB/8,tBps=tgtBits/8,sFc=dS/(sBps*sCh),sv=new DataView(buffer);function rd(p,b){if(b===8)return(sv.getUint8(p)-128)/128;if(b===16)return sv.getInt16(p,true)/32768;if(b===24)return((sv.getUint8(p)|(sv.getUint8(p+1)<<8)|(sv.getInt8(p+2)<<16)))/8388608;if(b===32)return sv.getInt32(p,true)/2147483648;return 0;}
@@ -715,13 +761,13 @@ const ws=Math.floor(sr*0.01);const msw=Math.ceil(minDurSec/0.01);const regs=[];l
 // ═══════════════════════════════════════════════════════
 //  Split / Merge / Delete / Undo
 // ═══════════════════════════════════════════════════════
-async function doSplit(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('请先选择一个音频','warning');return;}const idx=state.activeTrackIdx;const fe=folder.files[idx];toast('正在分析静音区域...','success');try{const buf=await FS.readFileBuffer(fe.ref);const h=parseWavHeader(buf);const sil=detectSilence(buf,h,-40,state.silenceMinDur);if(sil.length===0){toast(`未检测到 ≥${state.silenceMinDur.toFixed(2)} 秒的静音区域`,'warning');return;}const{numChannels:nc,sampleRate:sr,bitsPerSample:bps,dataOffset:dO,dataSize:dS}=h;const bpf=(bps/8)*nc;const total=dS/bpf;const sp=sil.map(s=>Math.floor((s.start+s.end)/2));const bd=[0,...sp,total];const bn=fe.name.replace(/\.wav$/i,'');stopPlayback();const nf=[];for(let i=0;i<bd.length-1;i++){const st=bd[i],en=bd[i+1];const ss=dO+st*bpf;const sl=(en-st)*bpf;const sd=buf.slice(ss,ss+sl);const nb=createWavBuffer(sd,nc,sr,bps);const nn=`${bn}_${i+1}.wav`;const r=await FS.writeFile(folder.ref,nn,nb);nf.push({ref:r.ref,name:r.name||nn});}state.undoStack.push({type:'split',folderIdx:state.activeFolderIdx,origName:fe.name,origRef:fe.ref,origData:buf.slice(0),origTrackIdx:idx,newFiles:nf.map(f=>({name:f.name,ref:f.ref}))});await FS.deleteFile(folder.ref,fe.name,fe.ref);folder.files.splice(idx,1,...nf);syncFolderCache(state.activeFolderIdx);renderTracks();playTrack(idx);toast(`已切分为 ${nf.length} 段`,'success');}catch(e){toast('切分失败: '+e.message,'error');console.error(e);}}
+async function doSplit(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('Please select an audio file first','warning');return;}const idx=state.activeTrackIdx;const fe=folder.files[idx];toast('Analyzing silence regions...','success');try{const buf=await FS.readFileBuffer(fe.ref);const h=parseWavHeader(buf);const sil=detectSilence(buf,h,-40,state.silenceMinDur);if(sil.length===0){toast(`No silence ≥${state.silenceMinDur.toFixed(2)}s detected`,'warning');return;}const{numChannels:nc,sampleRate:sr,bitsPerSample:bps,dataOffset:dO,dataSize:dS}=h;const bpf=(bps/8)*nc;const total=dS/bpf;const sp=sil.map(s=>Math.floor((s.start+s.end)/2));const bd=[0,...sp,total];const bn=fe.name.replace(/\.wav$/i,'');stopPlayback();const nf=[];for(let i=0;i<bd.length-1;i++){const st=bd[i],en=bd[i+1];const ss=dO+st*bpf;const sl=(en-st)*bpf;const sd=buf.slice(ss,ss+sl);const nb=createWavBuffer(sd,nc,sr,bps);const nn=`${bn}_${i+1}.wav`;const r=await FS.writeFile(folder.ref,nn,nb);nf.push({ref:r.ref,name:r.name||nn});}state.undoStack.push({type:'split',folderIdx:state.activeFolderIdx,origName:fe.name,origRef:fe.ref,origData:buf.slice(0),origTrackIdx:idx,newFiles:nf.map(f=>({name:f.name,ref:f.ref}))});await FS.deleteFile(folder.ref,fe.name,fe.ref);folder.files.splice(idx,1,...nf);syncFolderCache(state.activeFolderIdx);renderTracks();playTrack(idx);toast(`Split into ${nf.length} segments`,'success');}catch(e){toast('Split failed: '+e.message,'error');console.error(e);}}
 
-async function doMerge(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('请先选择一个音频','warning');return;}if(state.activeTrackIdx>=folder.files.length-1){toast('没有下一个文件可合并','warning');return;}const idx=state.activeTrackIdx;const f1=folder.files[idx],f2=folder.files[idx+1];toast('正在合并...','success');try{const b1=await FS.readFileBuffer(f1.ref);const b2=await FS.readFileBuffer(f2.ref);const h1=parseWavHeader(b1),h2=parseWavHeader(b2);const tc=Math.max(h1.numChannels,h2.numChannels);const tr=Math.max(h1.sampleRate,h2.sampleRate);const tb=Math.max(h1.bitsPerSample,h2.bitsPerSample);const p1=convertPcmData(b1,h1,tc,tr,tb);const p2=convertPcmData(b2,h2,tc,tr,tb);const cb=new Uint8Array(p1.byteLength+p2.byteLength);cb.set(new Uint8Array(p1),0);cb.set(new Uint8Array(p2),p1.byteLength);const mb=createWavBuffer(cb.buffer,tc,tr,tb);stopPlayback();state.undoStack.push({type:'merge',folderIdx:state.activeFolderIdx,trackIdx:idx,file1Name:f1.name,file1Ref:f1.ref,file1Data:b1.slice(0),file2Name:f2.name,file2Ref:f2.ref,file2Data:b2.slice(0)});await FS.deleteFile(folder.ref,f1.name,f1.ref);await FS.deleteFile(folder.ref,f2.name,f2.ref);const r=await FS.writeFile(folder.ref,f1.name,mb);folder.files.splice(idx,2,{ref:r.ref,name:r.name||f1.name});syncFolderCache(state.activeFolderIdx);renderTracks();playTrack(idx);const cv=(h1.numChannels!==h2.numChannels||h1.sampleRate!==h2.sampleRate||h1.bitsPerSample!==h2.bitsPerSample);toast(cv?`合并完成（已统一为 ${tr}Hz/${tb}bit/${tc}ch）`:'合并完成','success');}catch(e){toast('合并失败: '+e.message,'error');console.error(e);}}
+async function doMerge(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('Please select an audio file first','warning');return;}if(state.activeTrackIdx>=folder.files.length-1){toast('No next file to merge','warning');return;}const idx=state.activeTrackIdx;const f1=folder.files[idx],f2=folder.files[idx+1];toast('Merging...','success');try{const b1=await FS.readFileBuffer(f1.ref);const b2=await FS.readFileBuffer(f2.ref);const h1=parseWavHeader(b1),h2=parseWavHeader(b2);const tc=Math.max(h1.numChannels,h2.numChannels);const tr=Math.max(h1.sampleRate,h2.sampleRate);const tb=Math.max(h1.bitsPerSample,h2.bitsPerSample);const p1=convertPcmData(b1,h1,tc,tr,tb);const p2=convertPcmData(b2,h2,tc,tr,tb);const cb=new Uint8Array(p1.byteLength+p2.byteLength);cb.set(new Uint8Array(p1),0);cb.set(new Uint8Array(p2),p1.byteLength);const mb=createWavBuffer(cb.buffer,tc,tr,tb);stopPlayback();state.undoStack.push({type:'merge',folderIdx:state.activeFolderIdx,trackIdx:idx,file1Name:f1.name,file1Ref:f1.ref,file1Data:b1.slice(0),file2Name:f2.name,file2Ref:f2.ref,file2Data:b2.slice(0)});await FS.deleteFile(folder.ref,f1.name,f1.ref);await FS.deleteFile(folder.ref,f2.name,f2.ref);const r=await FS.writeFile(folder.ref,f1.name,mb);folder.files.splice(idx,2,{ref:r.ref,name:r.name||f1.name});syncFolderCache(state.activeFolderIdx);renderTracks();playTrack(idx);const cv=(h1.numChannels!==h2.numChannels||h1.sampleRate!==h2.sampleRate||h1.bitsPerSample!==h2.bitsPerSample);toast(cv?`Merge complete (unified to ${tr}Hz/${tb}bit/${tc}ch)`:'Merge complete','success');}catch(e){toast('Merge failed: '+e.message,'error');console.error(e);}}
 
-async function doDelete(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('请先选择一个音频','warning');return;}const idx=state.activeTrackIdx;const fe=folder.files[idx];try{const d=await FS.readFileBuffer(fe.ref);stopPlayback();state.undoStack.push({type:'delete',folderIdx:state.activeFolderIdx,trackIdx:idx,fileName:fe.name,fileRef:fe.ref,fileData:d.slice(0)});await FS.deleteFile(folder.ref,fe.name,fe.ref);folder.files.splice(idx,1);syncFolderCache(state.activeFolderIdx);renderTracks();if(folder.files.length>0)playTrack(Math.min(idx,folder.files.length-1));toast(`已删除「${fe.name}」`,'success');}catch(e){toast('删除失败: '+e.message,'error');}}
+async function doDelete(){const folder=state.folders[state.activeFolderIdx];if(!folder||state.activeTrackIdx<0){toast('Please select an audio file first','warning');return;}const idx=state.activeTrackIdx;const fe=folder.files[idx];try{const d=await FS.readFileBuffer(fe.ref);stopPlayback();state.undoStack.push({type:'delete',folderIdx:state.activeFolderIdx,trackIdx:idx,fileName:fe.name,fileRef:fe.ref,fileData:d.slice(0)});await FS.deleteFile(folder.ref,fe.name,fe.ref);folder.files.splice(idx,1);syncFolderCache(state.activeFolderIdx);renderTracks();if(folder.files.length>0)playTrack(Math.min(idx,folder.files.length-1));toast(`Deleted "${fe.name}"`,'success');}catch(e){toast('Delete failed: '+e.message,'error');}}
 
-async function doUndo(){if(state.undoStack.length===0){toast('没有可撤回的操作','warning');return;}const a=state.undoStack.pop();const folder=state.folders[a.folderIdx];if(!folder){toast('文件夹已移除，无法撤回','error');return;}try{stopPlayback();if(a.type==='split'){for(const f of a.newFiles){try{await FS.deleteFile(folder.ref,f.name,f.ref);}catch(e){}}const r=await FS.writeFile(folder.ref,a.origName,a.origData);folder.files=folder.files.filter(f=>!a.newFiles.some(nf=>nf.name===f.name));folder.files.splice(a.origTrackIdx,0,{ref:r.ref,name:r.name||a.origName});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.origTrackIdx);toast('已撤回切分操作','success');}else if(a.type==='merge'){const mf=folder.files[a.trackIdx];if(mf){try{await FS.deleteFile(folder.ref,mf.name,mf.ref);}catch(e){}}const r1=await FS.writeFile(folder.ref,a.file1Name,a.file1Data);const r2=await FS.writeFile(folder.ref,a.file2Name,a.file2Data);folder.files.splice(a.trackIdx,1,{ref:r1.ref,name:r1.name||a.file1Name},{ref:r2.ref,name:r2.name||a.file2Name});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.trackIdx);toast('已撤回合并操作','success');}else if(a.type==='delete'){const r=await FS.writeFile(folder.ref,a.fileName,a.fileData);folder.files.splice(a.trackIdx,0,{ref:r.ref,name:r.name||a.fileName});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.trackIdx);toast(`已恢复「${a.fileName}」`,'success');}}catch(e){toast('撤回失败: '+e.message,'error');}}
+async function doUndo(){if(state.undoStack.length===0){toast('Nothing to undo','warning');return;}const a=state.undoStack.pop();const folder=state.folders[a.folderIdx];if(!folder){toast('Folder removed, cannot undo','error');return;}try{stopPlayback();if(a.type==='split'){for(const f of a.newFiles){try{await FS.deleteFile(folder.ref,f.name,f.ref);}catch(e){}}const r=await FS.writeFile(folder.ref,a.origName,a.origData);folder.files=folder.files.filter(f=>!a.newFiles.some(nf=>nf.name===f.name));folder.files.splice(a.origTrackIdx,0,{ref:r.ref,name:r.name||a.origName});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.origTrackIdx);toast('Split undone','success');}else if(a.type==='merge'){const mf=folder.files[a.trackIdx];if(mf){try{await FS.deleteFile(folder.ref,mf.name,mf.ref);}catch(e){}}const r1=await FS.writeFile(folder.ref,a.file1Name,a.file1Data);const r2=await FS.writeFile(folder.ref,a.file2Name,a.file2Data);folder.files.splice(a.trackIdx,1,{ref:r1.ref,name:r1.name||a.file1Name},{ref:r2.ref,name:r2.name||a.file2Name});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.trackIdx);toast('Merge undone','success');}else if(a.type==='delete'){const r=await FS.writeFile(folder.ref,a.fileName,a.fileData);folder.files.splice(a.trackIdx,0,{ref:r.ref,name:r.name||a.fileName});syncFolderCache(a.folderIdx);renderTracks();playTrack(a.trackIdx);toast(`Restored "${a.fileName}"`,'success');}}catch(e){toast('Undo failed: '+e.message,'error');}}
 
 // ═══════════════════════════════════════════════════════
 //  Keyboard Shortcuts
@@ -731,9 +777,9 @@ document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.
 // ═══════════════════════════════════════════════════════
 //  Rendering
 // ═══════════════════════════════════════════════════════
-function renderFolders(){const c=document.getElementById('folderList');if(state.folders.length===0){c.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">尚未添加文件夹</div>';return;}c.innerHTML=state.folders.map((f,i)=>`<div class="folder-item ${i===state.activeFolderIdx?'active':''}" onclick="selectFolder(${i})"><span class="folder-icon">📂</span><span class="folder-name">${esc(f.name)}</span><span class="folder-count">${f.files.length}</span><button class="folder-refresh" onclick="manualRefreshFolder(${i},event)" title="刷新">🔄</button><button class="folder-remove" onclick="removeFolder(${i},event)" title="移除">✕</button></div>`).join('');}
+function renderFolders(){const c=document.getElementById('folderList');if(state.folders.length===0){c.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px;">No folders added yet</div>';return;}c.innerHTML=state.folders.map((f,i)=>`<div class="folder-item ${i===state.activeFolderIdx?'active':''}" onclick="selectFolder(${i})"><span class="folder-icon">📂</span><span class="folder-name">${esc(f.name)}</span><span class="folder-count">${f.files.length}</span><button class="folder-refresh" onclick="manualRefreshFolder(${i},event)" title="Refresh">🔄</button><button class="folder-remove" onclick="removeFolder(${i},event)" title="Remove">✕</button></div>`).join('');}
 
-function renderTracks(){const area=document.getElementById('trackArea');if(state.activeFolderIdx<0){area.innerHTML='<div class="empty-state"><div class="icon">🎵</div><p>点击左侧「添加文件夹」开始</p></div>';return;}const folder=state.folders[state.activeFolderIdx];if(folder.files.length===0){area.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>该文件夹内没有 WAV 文件</p></div>';return;}area.innerHTML=`<div class="track-area-header"><h2>${esc(folder.name)}</h2><span class="track-count">${folder.files.length} 首</span></div><ul class="track-list">${folder.files.map((f,i)=>`<li class="track-item ${i===state.activeTrackIdx?'active playing':''}" onclick="playTrack(${i})"><span class="track-index">${i===state.activeTrackIdx&&state.isPlaying?'▶':(i+1)}</span><span class="track-name">${esc(f.name.replace(/\.wav$/i,''))}</span></li>`).join('')}</ul>`;}
+function renderTracks(){const area=document.getElementById('trackArea');if(state.activeFolderIdx<0){area.innerHTML='<div class="empty-state"><div class="icon">🎵</div><p>Click "Add Folder" on the left to start</p></div>';return;}const folder=state.folders[state.activeFolderIdx];if(folder.files.length===0){area.innerHTML='<div class="empty-state"><div class="icon">📭</div><p>No WAV files in this folder</p></div>';return;}area.innerHTML=`<div class="track-area-header"><h2>${esc(folder.name)}</h2><span class="track-count">${folder.files.length} tracks</span></div><ul class="track-list">${folder.files.map((f,i)=>`<li class="track-item ${i===state.activeTrackIdx?'active playing':''}" onclick="playTrack(${i})"><span class="track-index">${i===state.activeTrackIdx&&state.isPlaying?'▶':(i+1)}</span><span class="track-name">${esc(f.name.replace(/\.wav$/i,''))}</span></li>`).join('')}</ul>`;}
 
 function updatePlayBtn(){document.getElementById('btnPlay').textContent=state.isPlaying?'⏸':'▶';}
 function updateLoopBtn(){const b=document.getElementById('btnLoop');b.classList.toggle('active',state.loopMode!=='none');b.innerHTML=state.loopMode==='one'?'🔂':'🔁';}
@@ -743,7 +789,7 @@ function updateShuffleBtn(){document.getElementById('btnShuffle').classList.togg
 //  Media Session
 // ═══════════════════════════════════════════════════════
 const MBPlugin=isNative?window.Capacitor.Plugins.MediaButtonPlugin:null;
-function updateMediaSession(title,album){if(isNative&&MBPlugin){MBPlugin.updateState({isPlaying:state.isPlaying,title:title||'',album:album||'',duration:audio.duration||0,position:audio.currentTime||0}).catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:title||'未知音频',artist:'WAV Player',album:album||''});navigator.mediaSession.playbackState=state.isPlaying?'playing':'paused';}}
+function updateMediaSession(title,album){if(isNative&&MBPlugin){MBPlugin.updateState({isPlaying:state.isPlaying,title:title||'',album:album||'',duration:audio.duration||0,position:audio.currentTime||0}).catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:title||'Unknown audio',artist:'WAV Player',album:album||''});navigator.mediaSession.playbackState=state.isPlaying?'playing':'paused';}}
 let nst=null;function startNSS(){if(!isNative||!MBPlugin)return;stopNSS();nst=setInterval(()=>{if(state.isPlaying&&audio.duration){const f=state.folders[state.activeFolderIdx];const fe=f&&f.files[state.activeTrackIdx];MBPlugin.updateState({isPlaying:true,title:fe?fe.name.replace(/\.wav$/i,''):'',album:f?f.name:'',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}},3000);}function stopNSS(){if(nst){clearInterval(nst);nst=null;}}
 function initMediaSession(){if(isNative&&MBPlugin){window.Capacitor.Plugins.MediaButtonPlugin.addListener('mediaButton',d=>{switch(d.action){case'play':if(!state.isPlaying)togglePlay();break;case'pause':if(state.isPlaying)togglePlay();break;case'nexttrack':nextTrack();break;case'previoustrack':prevTrack();break;case'stop':stopPlayback();break;case'seekto':if(d.position!=null)audio.currentTime=d.position;break;}});MBPlugin.activate().catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.setActionHandler('play',()=>{if(!state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('pause',()=>{if(state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('previoustrack',()=>prevTrack());navigator.mediaSession.setActionHandler('nexttrack',()=>nextTrack());navigator.mediaSession.setActionHandler('seekbackward',d=>{audio.currentTime=Math.max(0,audio.currentTime-(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekforward',d=>{audio.currentTime=Math.min(audio.duration||0,audio.currentTime+(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekto',d=>{audio.currentTime=d.seekTime;});navigator.mediaSession.setActionHandler('stop',()=>stopPlayback());}}
 audio.addEventListener('play',()=>{if(isNative&&MBPlugin){MBPlugin.activate().catch(()=>{});startNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='playing';});
@@ -762,7 +808,7 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('op
 // ═══════════════════════════════════════════════════════
 function openSplitSettings(){document.getElementById('splitMinDurInput').value=state.silenceMinDur.toFixed(2);document.getElementById('splitSettingsModal').classList.add('show');setTimeout(()=>{const i=document.getElementById('splitMinDurInput');i.focus();i.select();},50);}
 function closeSplitSettings(){document.getElementById('splitSettingsModal').classList.remove('show');}
-function saveSplitSettings(){const raw=document.getElementById('splitMinDurInput').value;const v=parseFloat(raw);if(isNaN(v)||v<0.01){toast('请输入不小于 0.01 秒的数值','warning');return;}const rounded=Math.round(v*100)/100;state.silenceMinDur=rounded;try{localStorage.setItem('splitMinDur',String(rounded));}catch(e){}closeSplitSettings();toast(`静音最小时长已设为 ${rounded.toFixed(2)} 秒`,'success');}
+function saveSplitSettings(){const raw=document.getElementById('splitMinDurInput').value;const v=parseFloat(raw);if(isNaN(v)||v<0.01){toast('Please enter a value of at least 0.01 seconds','warning');return;}const rounded=Math.round(v*100)/100;state.silenceMinDur=rounded;try{localStorage.setItem('splitMinDur',String(rounded));}catch(e){}closeSplitSettings();toast(`Minimum silence duration set to ${rounded.toFixed(2)}s`,'success');}
 function loadSplitSettings(){try{const s=localStorage.getItem('splitMinDur');if(s!==null){const v=parseFloat(s);if(!isNaN(v)&&v>=0.01)state.silenceMinDur=Math.round(v*100)/100;}}catch(e){}}
 
 // ═══════════════════════════════════════════════════════
