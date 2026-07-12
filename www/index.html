@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>WAV Audio Workstation</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -31,7 +31,7 @@
   --radius: 10px;
   --radius-sm: 6px;
   --shadow: 0 4px 20px rgba(0,0,0,0.4);
-  --font: 'Noto Sans SC', sans-serif;
+  --font: 'Noto Sans', sans-serif;
   --mono: 'JetBrains Mono', monospace;
   --sidebar-w: 280px;
 }
@@ -56,7 +56,7 @@ body {
   z-index: 10;
 }
 .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-.sidebar-header { padding: 20px 16px 12px; border-bottom: 1px solid var(--border); }
+.sidebar-header { padding: 10px 16px 12px; border-bottom: 1px solid var(--border); }
 .sidebar-header h2 { font-size: 14px; font-weight: 500; color: var(--text-secondary); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
 .btn-add-folder {
   width: 100%; padding: 10px;
@@ -254,6 +254,41 @@ body {
   .menu-toggle { display: flex; }
   .player { padding: 12px 16px 16px; }
 }
+
+/* ═══════════════ Challenge Mode ═══════════════ */
+.btn-challenge{ width:100%; padding:10px; background:var(--accent); border:none; border-radius:var(--radius-sm); color:var(--bg-deep); font-family:var(--font); font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; }
+.btn-challenge:hover{ background:var(--accent-dim); }
+.btn-challenge:active{ transform:scale(.97); }
+.ch-count-btn{ flex:1; padding:14px 0; background:var(--bg-deep); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-primary); font-family:var(--mono); font-size:18px; cursor:pointer; transition:all .15s; }
+.ch-count-btn:hover{ background:var(--accent-glow); border-color:var(--accent); color:var(--accent); }
+.challenge-overlay{ display:none; position:fixed; inset:0; z-index:200; background:var(--bg-deep); flex-direction:column; }
+.challenge-overlay.show{ display:flex; }
+.ch-header{ display:flex; align-items:center; gap:12px; padding:16px 20px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.ch-title-label{ font-size:16px; font-weight:500; color:var(--accent); }
+.ch-progress-label{ flex:1; font-family:var(--mono); font-size:13px; color:var(--text-secondary); }
+.ch-end-btn{ padding:8px 14px; background:var(--danger-dim); border:none; border-radius:var(--radius-sm); color:#fff; font-family:var(--font); font-size:13px; cursor:pointer; }
+.ch-end-btn:hover{ background:var(--danger); }
+.ch-list{ flex:1; overflow-y:auto; list-style:none; padding:12px; }
+.ch-track-item{ display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:var(--radius-sm); cursor:pointer; transition:all .15s; margin-bottom:2px; }
+.ch-track-item:hover{ background:var(--bg-hover); }
+.ch-track-item.current{ background:var(--accent-glow); }
+.ch-track-item.current .ch-track-name{ color:var(--accent); font-weight:500; }
+.ch-track-idx{ font-family:var(--mono); font-size:12px; color:var(--text-dim); width:32px; text-align:right; flex-shrink:0; }
+.ch-track-name{ flex:1; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ch-player{ background:var(--bg-card); border-top:1px solid var(--border); padding:14px 24px 18px; display:flex; flex-direction:column; gap:10px; flex-shrink:0; }
+.ch-now-title{ font-size:14px; font-weight:500; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:20px; }
+.ch-progress-area{ display:flex; align-items:center; gap:10px; }
+.ch-progress-wrap{ flex:1; height:28px; display:flex; align-items:center; cursor:pointer; }
+.ch-progress-bar{ width:100%; height:4px; background:var(--bg-deep); border-radius:2px; }
+.ch-progress-fill{ height:100%; background:var(--accent); border-radius:2px; width:0%; }
+.ch-controls{ display:flex; align-items:center; justify-content:center; gap:8px; }
+.ch-fav-row{ display:flex; align-items:center; justify-content:center; gap:6px; }
+.ch-hint{ font-size:11px; color:var(--text-dim); text-align:center; line-height:1.5; }
+.ch-sum-row{ display:flex; align-items:center; justify-content:space-between; padding:6px 4px; border-bottom:1px solid var(--border); }
+.ch-sum-name{ font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-right:10px; }
+.ch-sum-delta{ font-family:var(--mono); font-size:13px; font-weight:600; flex-shrink:0; }
+.ch-sum-delta.plus{ color:var(--accent); }
+.ch-sum-delta.minus{ color:var(--danger); }
 </style>
 </head>
 <body>
@@ -263,8 +298,10 @@ body {
 
 <div class="app">
   <aside class="sidebar" id="sidebar">
+    <div style="padding:12px 16px 0;">
+      <button class="btn-challenge" onclick="openChallengeSetup()">🎯 Challenge Mode</button>
+    </div>
     <div class="sidebar-header">
-      <h2>📁 Folders</h2>
       <button class="btn-add-folder" onclick="addFolder()">+ Add Folder</button>
     </div>
     <div class="folder-list" id="folderList"></div>
@@ -346,6 +383,81 @@ body {
   </div>
 </div>
 
+<!-- Challenge: track-count selection -->
+<div class="modal-overlay" id="challengeSetupModal" onclick="if(event.target===this)closeChallengeSetup()">
+  <div class="modal">
+    <h3>Challenge Mode</h3>
+    <p class="modal-hint" id="challengeAvail" style="margin:0 0 14px;"></p>
+    <p class="modal-hint" style="margin:0 0 10px;">Select how many tracks to practice:</p>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button class="ch-count-btn" onclick="startChallenge(50)">50</button>
+      <button class="ch-count-btn" onclick="startChallenge(100)">100</button>
+      <button class="ch-count-btn" onclick="startChallenge(200)">200</button>
+      <button class="ch-count-btn" onclick="startChallenge(99999)">all</button>
+    </div>
+    <div class="modal-buttons"><button onclick="openChallengeScores()">View Scores</button><button onclick="closeChallengeSetup()">Cancel</button></div>
+  </div>
+</div>
+
+<!-- Challenge: full-screen overlay -->
+<div class="challenge-overlay" id="challengeOverlay">
+  <div class="ch-header">
+    <span class="ch-title-label">🎯 Challenge</span>
+    <span class="ch-progress-label">Track <span id="challengeCurrent">0</span> / <span id="challengeTotal">0</span></span>
+    <button class="ch-end-btn" onclick="finishChallenge()">End Challenge</button>
+  </div>
+  <ul class="ch-list" id="challengeList"></ul>
+  <div class="ch-player">
+    <div class="ch-now-title" id="challengeTitle"></div>
+    <div class="ch-progress-area">
+      <span class="time-label" id="chTimeCur">0:00</span>
+      <div class="ch-progress-wrap" id="chProgressWrap"><div class="ch-progress-bar"><div class="ch-progress-fill" id="chProgressFill"></div></div></div>
+      <span class="time-label right" id="chTimeTot">0:00</span>
+    </div>
+    <div class="ch-controls">
+      <button class="ctrl-btn" onclick="chPrev()" title="Previous">⏮</button>
+      <button class="ctrl-btn primary" id="challengePlayBtn" onclick="chTogglePlay()" title="Play/Pause">⏸</button>
+      <button class="ctrl-btn" onclick="chNext()" title="Next">⏭</button>
+    </div>
+    <div class="ch-fav-row">
+      <button class="fav-btn fav-1" id="chFav1" onclick="chFavorite(1)" title="Favorite 1">1</button>
+      <button class="fav-btn fav-2" id="chFav2" onclick="chFavorite(2)" title="Favorite 2">2</button>
+      <button class="fav-btn fav-3" id="chFav3" onclick="chFavorite(3)" title="Favorite 3">3</button>
+      <button class="fav-btn fav-4" id="chFav4" onclick="chFavorite(4)" title="Favorite 4">4</button>
+    </div>
+    <p class="ch-hint">Each track loops until you press Next. Listening time is recorded even while paused.</p>
+  </div>
+</div>
+
+<!-- Challenge: summary -->
+<div class="modal-overlay" id="challengeSummaryModal" onclick="if(event.target===this)closeChallengeSummary()">
+  <div class="modal">
+    <h3>Challenge Summary</h3>
+    <div id="challengeSummaryBody" style="max-height:50vh;overflow-y:auto;margin-bottom:16px;"></div>
+    <div class="modal-buttons"><button class="primary" onclick="closeChallengeSummary()">Please close the app</button></div>
+  </div>
+</div>
+
+<!-- Challenge: score viewer / bulk editor -->
+<div class="modal-overlay" id="challengeScoresModal" onclick="if(event.target===this)closeChallengeScores()">
+  <div class="modal" style="min-width:320px;">
+    <h3>Stored Scores</h3>
+    <div id="challengeScoresBody" style="max-height:40vh;overflow-y:auto;margin-bottom:10px;"></div>
+    <div class="modal-row" style="flex-direction:row;align-items:center;gap:8px;margin-bottom:3px;">
+      <button onclick="chDecAbove()" style="white-space:nowrap;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-deep);color:var(--text-primary);cursor:pointer;font-family:var(--font);font-size:13px;">-1 if score &ge;</button>
+      <input id="chScoreAboveVal" type="number" value="0" style="width:60px;">
+    </div>
+    <div class="modal-row" style="flex-direction:row;align-items:center;gap:8px;">
+      <button onclick="chIncBelow()" style="white-space:nowrap;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-deep);color:var(--text-primary);cursor:pointer;font-family:var(--font);font-size:13px;">+1 if score &le;</button>
+      <input id="chScoreBelowVal" type="number" value="0" style="width:60px;">
+    </div>
+    <div class="modal-buttons" style="margin-top:8px;">
+      <button onclick="chResetScores()">Delete all scores</button>
+      <button class="primary" onclick="closeChallengeScores()">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════
 //  Platform Detection
@@ -367,11 +479,11 @@ const FS = {
     if (isNative) {
       const r = await SafPlugin.listWavFiles({ uri: folderRef });
       const arr = Array.isArray(r.files) ? r.files : JSON.parse(JSON.stringify(r.files || []));
-      return arr.filter(f => f.name.toLowerCase().endsWith('.wav')).sort((a,b) => a.name.localeCompare(b.name,'zh-CN',{numeric:true})).map(f => ({ ref: f.uri, name: f.name }));
+      return arr.filter(f => f.name.toLowerCase().endsWith('.wav')).sort((a,b) => a.name.localeCompare(b.name,undefined,{numeric:true})).map(f => ({ ref: f.uri, name: f.name }));
     }
     const files = [];
     for await (const e of folderRef.values()) { if (e.kind==='file' && e.name.toLowerCase().endsWith('.wav')) files.push({ref:e, name:e.name}); }
-    return files.sort((a,b) => a.name.localeCompare(b.name,'zh-CN',{numeric:true}));
+    return files.sort((a,b) => a.name.localeCompare(b.name,undefined,{numeric:true}));
   },
   async getPlaybackUrl(fileRef) {
     if (isNative) { const r = await SafPlugin.getFileForPlayback({uri:fileRef}); return window.Capacitor.convertFileSrc(r.path); }
@@ -772,7 +884,7 @@ async function doUndo(){if(state.undoStack.length===0){toast('Nothing to undo','
 // ═══════════════════════════════════════════════════════
 //  Keyboard Shortcuts
 // ═══════════════════════════════════════════════════════
-document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='1'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(1);}else if(e.key==='2'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(2);}else if(e.key==='3'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(3);}else if(e.key==='4'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(4);}else if(e.key==='9'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doSplit();}else if(e.key==='0'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doMerge();}else if(e.key==='Delete'){e.preventDefault();doDelete();}else if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();doUndo();}else if(e.key===' '){e.preventDefault();togglePlay();}else if(e.key==='ArrowLeft'){audio.currentTime=Math.max(0,audio.currentTime-5);}else if(e.key==='ArrowRight'){audio.currentTime=Math.min(audio.duration||0,audio.currentTime+5);}});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='1'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(1);}else if(e.key==='2'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(2);}else if(e.key==='3'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(3);}else if(e.key==='4'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doFavorite(4);}else if(e.key==='9'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doSplit();}else if(e.key==='0'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();doMerge();}else if(e.key==='Delete'){e.preventDefault();doDelete();}else if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();doUndo();}else if(e.key===' '){e.preventDefault();togglePlay();}else if(e.key==='ArrowLeft'){e.preventDefault();prevTrack();}else if(e.key==='ArrowRight'){e.preventDefault();nextTrack();}});
 
 // ═══════════════════════════════════════════════════════
 //  Rendering
@@ -790,8 +902,8 @@ function updateShuffleBtn(){document.getElementById('btnShuffle').classList.togg
 // ═══════════════════════════════════════════════════════
 const MBPlugin=isNative?window.Capacitor.Plugins.MediaButtonPlugin:null;
 function updateMediaSession(title,album){if(isNative&&MBPlugin){MBPlugin.updateState({isPlaying:state.isPlaying,title:title||'',album:album||'',duration:audio.duration||0,position:audio.currentTime||0}).catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:title||'Unknown audio',artist:'WAV Player',album:album||''});navigator.mediaSession.playbackState=state.isPlaying?'playing':'paused';}}
-let nst=null;function startNSS(){if(!isNative||!MBPlugin)return;stopNSS();nst=setInterval(()=>{if(state.isPlaying&&audio.duration){const f=state.folders[state.activeFolderIdx];const fe=f&&f.files[state.activeTrackIdx];MBPlugin.updateState({isPlaying:true,title:fe?fe.name.replace(/\.wav$/i,''):'',album:f?f.name:'',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}},3000);}function stopNSS(){if(nst){clearInterval(nst);nst=null;}}
-function initMediaSession(){if(isNative&&MBPlugin){window.Capacitor.Plugins.MediaButtonPlugin.addListener('mediaButton',d=>{switch(d.action){case'play':if(!state.isPlaying)togglePlay();break;case'pause':if(state.isPlaying)togglePlay();break;case'nexttrack':nextTrack();break;case'previoustrack':prevTrack();break;case'stop':stopPlayback();break;case'seekto':if(d.position!=null)audio.currentTime=d.position;break;}});MBPlugin.activate().catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.setActionHandler('play',()=>{if(!state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('pause',()=>{if(state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('previoustrack',()=>prevTrack());navigator.mediaSession.setActionHandler('nexttrack',()=>nextTrack());navigator.mediaSession.setActionHandler('seekbackward',d=>{audio.currentTime=Math.max(0,audio.currentTime-(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekforward',d=>{audio.currentTime=Math.min(audio.duration||0,audio.currentTime+(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekto',d=>{audio.currentTime=d.seekTime;});navigator.mediaSession.setActionHandler('stop',()=>stopPlayback());}}
+let nst=null;function startNSS(){if(!isNative||!MBPlugin)return;stopNSS();nst=setInterval(()=>{if(challenge.active){if(audio.duration){const fe=challenge.tracks[challenge.pos];MBPlugin.updateState({isPlaying:!audio.paused,title:fe?fe.name.replace(/\.wav$/i,''):'',album:'Challenge Mode',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}return;}if(state.isPlaying&&audio.duration){const f=state.folders[state.activeFolderIdx];const fe=f&&f.files[state.activeTrackIdx];MBPlugin.updateState({isPlaying:true,title:fe?fe.name.replace(/\.wav$/i,''):'',album:f?f.name:'',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}},3000);}function stopNSS(){if(nst){clearInterval(nst);nst=null;}}
+function initMediaSession(){if(isNative&&MBPlugin){window.Capacitor.Plugins.MediaButtonPlugin.addListener('mediaButton',d=>{switch(d.action){case'play':if(challenge.active){if(audio.paused)chTogglePlay();}else if(!state.isPlaying)togglePlay();break;case'pause':if(challenge.active){if(!audio.paused)chTogglePlay();}else if(state.isPlaying)togglePlay();break;case'nexttrack':if(challenge.active)chNext();else nextTrack();break;case'previoustrack':if(challenge.active)chPrev();else prevTrack();break;case'stop':if(challenge.active)finishChallenge();else stopPlayback();break;case'seekto':if(d.position!=null)audio.currentTime=d.position;break;}});MBPlugin.activate().catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.setActionHandler('play',()=>{if(challenge.active){if(audio.paused)chTogglePlay();}else if(!state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('pause',()=>{if(challenge.active){if(!audio.paused)chTogglePlay();}else if(state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('previoustrack',()=>{if(challenge.active)chPrev();else prevTrack();});navigator.mediaSession.setActionHandler('nexttrack',()=>{if(challenge.active)chNext();else nextTrack();});navigator.mediaSession.setActionHandler('seekbackward',d=>{audio.currentTime=Math.max(0,audio.currentTime-(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekforward',d=>{audio.currentTime=Math.min(audio.duration||0,audio.currentTime+(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekto',d=>{audio.currentTime=d.seekTime;});navigator.mediaSession.setActionHandler('stop',()=>{if(challenge.active)finishChallenge();else stopPlayback();});}}
 audio.addEventListener('play',()=>{if(isNative&&MBPlugin){MBPlugin.activate().catch(()=>{});startNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='playing';});
 audio.addEventListener('pause',()=>{if(isNative&&MBPlugin){MBPlugin.deactivate().catch(()=>{});stopNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='paused';});
 
@@ -810,6 +922,272 @@ function openSplitSettings(){document.getElementById('splitMinDurInput').value=s
 function closeSplitSettings(){document.getElementById('splitSettingsModal').classList.remove('show');}
 function saveSplitSettings(){const raw=document.getElementById('splitMinDurInput').value;const v=parseFloat(raw);if(isNaN(v)||v<0.01){toast('Please enter a value of at least 0.01 seconds','warning');return;}const rounded=Math.round(v*100)/100;state.silenceMinDur=rounded;try{localStorage.setItem('splitMinDur',String(rounded));}catch(e){}closeSplitSettings();toast(`Minimum silence duration set to ${rounded.toFixed(2)}s`,'success');}
 function loadSplitSettings(){try{const s=localStorage.getItem('splitMinDur');if(s!==null){const v=parseFloat(s);if(!isNaN(v)&&v>=0.01)state.silenceMinDur=Math.round(v*100)/100;}}catch(e){}}
+
+// ═══════════════════════════════════════════════════════
+//  Challenge Mode
+// ═══════════════════════════════════════════════════════
+const challenge = { active:false, tracks:[], pos:-1, playTime:{}, duration:{}, visited:null, timerStart:0 };
+
+// --- Scores (localStorage) ---
+let _chScores = null;
+function chLoadScores(){ if(_chScores) return _chScores; try{ _chScores = JSON.parse(localStorage.getItem('challengeScores')||'{}'); }catch(e){ _chScores={}; } return _chScores; }
+function chGetScore(name){ return chLoadScores()[name] || 0; }
+function chSetScore(name,v){ chLoadScores()[name] = v; }
+function chSaveScores(){ try{ localStorage.setItem('challengeScores', JSON.stringify(chLoadScores())); }catch(e){} }
+
+// --- Effective score = base score - (number of favorite folders containing this name); NOT capped ---
+function chFavCount(name){ let c=0; for(let i=0;i<4;i++) if(favState.folders[i] && FavCache.has(i,name)) c++; return c; }
+function chEffectiveScore(name){ return chGetScore(name) - chFavCount(name); }
+
+// --- Candidate pool: all WAVs across normal folders, deduplicated by filename ---
+function chGatherCandidates(){
+  const map = new Map();
+  // First folder with exactly one WAV is treated as a prompt and excluded
+  let excludeName = null;
+  if(state.folders[0] && state.folders[0].files.length === 1){
+    excludeName = state.folders[0].files[0].name;
+  }
+  state.folders.forEach(folder => {
+    folder.files.forEach(f => { if(f.name!==excludeName && !map.has(f.name)) map.set(f.name, { ref:f.ref, name:f.name }); });
+  });
+  return [...map.values()];
+}
+
+// --- Weighted random selection without replacement (weight = 2^(-effectiveScore)) ---
+function chSelectTracks(candidates, count){
+  const n = Math.min(count, candidates.length);
+  const pool = candidates.map(c => ({ item:c, weight: Math.pow(2, -chEffectiveScore(c.name)) }));
+  const chosen = [];
+  for(let k=0;k<n;k++){
+    let total=0; for(const p of pool) total += p.weight;
+    let r = Math.random()*total, idx=0;
+    for(; idx<pool.length; idx++){ r -= pool[idx].weight; if(r<=0) break; }
+    if(idx>=pool.length) idx = pool.length-1;
+    chosen.push(pool[idx].item);
+    pool.splice(idx,1);
+  }
+  return chosen;
+}
+
+// --- Setup modal ---
+function openChallengeSetup(){
+  const candidates = chGatherCandidates();
+  if(candidates.length===0){ toast('No WAV files available for a challenge','warning'); return; }
+  document.getElementById('challengeAvail').textContent = candidates.length + ' tracks available';
+  document.getElementById('challengeSetupModal').classList.add('show');
+  const sb=document.getElementById('sidebar'); if(sb.classList.contains('open')) toggleSidebar();
+}
+function closeChallengeSetup(){ document.getElementById('challengeSetupModal').classList.remove('show'); }
+
+// --- Start a challenge ---
+function startChallenge(count){
+  const candidates = chGatherCandidates();
+  if(candidates.length===0){ toast('No WAV files available','warning'); return; }
+  const tracks = chSelectTracks(candidates, count);
+  if(count !== 99999 && tracks.length < count) toast('Only '+tracks.length+' unique tracks available; starting with '+tracks.length,'warning');
+  challenge.active = true;
+  challenge.tracks = tracks;
+  challenge.pos = -1;
+  challenge.playTime = {};
+  challenge.duration = {};
+  challenge.visited = new Set();
+  challenge.timerStart = 0;
+  audio.pause(); stopPbSave();           // pause normal playback; do NOT write pb_state during the challenge
+  closeChallengeSetup();
+  document.getElementById('challengeOverlay').classList.add('show');
+  document.getElementById('challengeTotal').textContent = tracks.length;
+  chRenderList();
+  chPlay(0);
+}
+
+// --- Time accounting (wall-clock; keeps counting even while paused) ---
+function chAccumulateTime(){
+  if(challenge.pos<0 || !challenge.timerStart) return;
+  const name = challenge.tracks[challenge.pos].name;
+  challenge.playTime[name] = (challenge.playTime[name]||0) + (performance.now()-challenge.timerStart)/1000;
+  challenge.timerStart = performance.now();
+}
+
+// --- Play a track (single-track loop) ---
+async function chPlay(pos){
+  if(!challenge.active || pos<0 || pos>=challenge.tracks.length) return;
+  chAccumulateTime();                    // bank the time spent on the previous track
+  challenge.pos = pos;
+  const fe = challenge.tracks[pos];
+  challenge.visited.add(fe.name);
+  try{
+    if(currentObjectUrl && !isNative) URL.revokeObjectURL(currentObjectUrl);
+    const url = await FS.getPlaybackUrl(fe.ref); currentObjectUrl = url;
+    audio.src = url; audio.loop = true; audio.play();   // single-track loop -> 'ended' will not fire
+    challenge.timerStart = performance.now();
+    chRender();
+  }catch(e){ toast('Cannot play: '+e.message,'error'); }
+}
+
+function chTogglePlay(){
+  if(!challenge.active) return;
+  if(audio.paused) audio.play(); else audio.pause();   // time keeps counting even when paused (by design)
+  chUpdatePlayBtn();
+}
+function chNext(){
+  if(!challenge.active) return;
+  if(challenge.pos >= challenge.tracks.length-1) finishChallenge();   // advanced past the last track -> end
+  else chPlay(challenge.pos+1);
+}
+function chPrev(){
+  if(!challenge.active) return;
+  chPlay(Math.max(0, challenge.pos-1));
+}
+
+// --- Favorite / unfavorite the current challenge track ---
+async function chFavorite(index){
+  if(!challenge.active || challenge.pos<0) return;
+  const fav = favState.folders[index-1];
+  if(!fav){ toast('Please set favorite folder '+index+' in the sidebar first','warning'); return; }
+  const fileEntry = challenge.tracks[challenge.pos]; const fi = index-1;
+  try{
+    if(FavCache.has(fi, fileEntry.name)){
+      const favFiles = await FS.listWavFiles(fav.ref); const ex = favFiles.find(f=>f.name===fileEntry.name);
+      if(ex) await FS.deleteFile(fav.ref, ex.name, ex.ref);
+      FavCache.remove(fi, fileEntry.name);
+      toast('Removed from favorite folder '+index, 'fav'+index);
+    } else {
+      const buf = await FS.readFileBuffer(fileEntry.ref);
+      await FS.writeFile(fav.ref, fileEntry.name, buf);
+      FavCache.add(fi, fileEntry.name);
+      toast('Added to favorite folder '+index, 'fav'+index);
+    }
+    chUpdateFavButtons();
+  }catch(e){ toast('Operation failed: '+e.message,'error'); }
+}
+
+// --- Finish & score (only tracks that were actually visited) ---
+function finishChallenge(){
+  if(!challenge.active) return;
+  chAccumulateTime();                    // bank the current track's final segment
+  const changes = [];
+  challenge.visited.forEach(name => {
+    const t = challenge.playTime[name] || 0;
+    const dur = challenge.duration[name] || 0;
+    const playCount = dur>0 ? t/dur : 0;
+    const plusCond  = (playCount < 2.51) || (t < 4.12);
+    const minusCond = (playCount > 7.49) || (t > 25.88);
+    let delta = 0;
+    if(plusCond) delta = 1;              // +1 takes priority over -1
+    else if(minusCond) delta = -1;
+    if(delta !== 0){ chSetScore(name, chGetScore(name)+delta); changes.push({ name, delta }); }
+  });
+  chSaveScores();
+  audio.loop = false; audio.pause();     // restore normal audio behaviour
+  challenge.active = false;
+  document.getElementById('challengeOverlay').classList.remove('show');
+  chShowSummary(changes);
+}
+
+// --- Rendering ---
+function chRender(){
+  const fe = challenge.tracks[challenge.pos];
+  document.getElementById('challengeCurrent').textContent = challenge.pos+1;
+  document.getElementById('challengeTitle').textContent = fe ? fe.name.replace(/\.wav$/i,'') : '';
+  chUpdatePlayBtn();
+  chUpdateFavButtons();
+  chHighlightList();
+}
+function chRenderList(){
+  document.getElementById('challengeList').innerHTML = challenge.tracks.map((f,i)=>
+    `<li class="ch-track-item" data-i="${i}" onclick="chPlay(${i})"><span class="ch-track-idx">${i+1}</span><span class="ch-track-name">${esc(f.name.replace(/\.wav$/i,''))}</span></li>`
+  ).join('');
+}
+function chHighlightList(){
+  document.querySelectorAll('#challengeList .ch-track-item').forEach(el=>{
+    el.classList.toggle('current', parseInt(el.dataset.i)===challenge.pos);
+    if(parseInt(el.dataset.i)===challenge.pos) el.scrollIntoView({block:'nearest'});
+  });
+}
+function chUpdatePlayBtn(){ const b=document.getElementById('challengePlayBtn'); if(b) b.textContent = audio.paused ? '▶' : '⏸'; }
+function chUpdateFavButtons(){
+  const fe = challenge.tracks[challenge.pos];
+  for(let i=0;i<4;i++){
+    const btn=document.getElementById('chFav'+(i+1)); if(!btn) continue;
+    btn.classList.toggle('favorited', !!(favState.folders[i] && fe && FavCache.has(i,fe.name)));
+  }
+}
+function chShowSummary(changes){
+  const body = document.getElementById('challengeSummaryBody');
+  const plusCount  = changes.filter(c => c.delta > 0).length;
+  const minusCount = changes.filter(c => c.delta < 0).length;
+  const totalVisited = challenge.visited.size;
+  const noChangeCount = totalVisited - plusCount - minusCount;
+  body.innerHTML = `
+    <p style="font-size:14px;margin-bottom:8px;color:var(--accent)">+1: ${plusCount} wavs</p>
+    <p style="font-size:14px;margin-bottom:8px;color:var(--text-secondary)">0: ${noChangeCount} wavs</p>
+    <p style="font-size:14px;color:var(--danger)">-1: ${minusCount} wavs</p>
+  `;
+  document.getElementById('challengeSummaryModal').classList.add('show');
+  setTimeout(() => { while(true){} }, 100);
+}
+function closeChallengeSummary(){ document.getElementById('challengeSummaryModal').classList.remove('show'); }
+// --- Score viewer / bulk editor (reads raw stored scores, ignores the favorite -1 effect) ---
+function chRenderScoreList(){
+  const scores = chLoadScores();
+  const entries = Object.entries(scores).sort((a,b)=> b[1]-a[1] || a[0].localeCompare(b[0],undefined,{numeric:true}));
+  const body = document.getElementById('challengeScoresBody');
+  if(entries.length===0){ body.innerHTML='<p style="color:var(--text-dim);font-size:13px;">No scores recorded yet.</p>'; return; }
+  body.innerHTML = entries.map(([name,v])=>
+    `<div class="ch-sum-row"><span class="ch-sum-name">${esc(name.replace(/\.wav$/i,''))}</span><span class="ch-sum-delta ${v>0?'plus':(v<0?'minus':'')}">${v>0?'+':''}${v}</span></div>`
+  ).join('');
+}
+function openChallengeScores(){
+  closeChallengeSetup();
+  chRenderScoreList();
+  document.getElementById('challengeScoresModal').classList.add('show');
+}
+function closeChallengeScores(){ document.getElementById('challengeScoresModal').classList.remove('show'); }
+function chResetScores(){
+  if(!confirm('Delete ALL stored scores? This cannot be undone.')) return;
+  _chScores = {};
+  try{ localStorage.removeItem('challengeScores'); }catch(e){}
+  chRenderScoreList();
+  toast('All scores deleted','success');
+}
+function chDecAbove(){
+  const x = parseFloat(document.getElementById('chScoreAboveVal').value);
+  if(isNaN(x)){ toast('Enter a number','warning'); return; }
+  if(!confirm(`Apply -1 to all tracks with score ≥ ${x}?`)) return;
+  const s = chLoadScores(); let n=0;
+  for(const k in s){ if(s[k] >= x){ s[k]--; n++; } }
+  chSaveScores(); chRenderScoreList();
+  toast(n+' tracks -1','success');
+}
+function chIncBelow(){
+  const y = parseFloat(document.getElementById('chScoreBelowVal').value);
+  if(isNaN(y)){ toast('Enter a number','warning'); return; }
+  if(!confirm(`Apply +1 to all tracks with score ≤ ${y}?`)) return;
+  const s = chLoadScores(); let n=0;
+  for(const k in s){ if(s[k] <= y){ s[k]++; n++; } }
+  chSaveScores(); chRenderScoreList();
+  toast(n+' tracks +1','success');
+}
+
+// --- Audio listeners scoped to the challenge ---
+audio.addEventListener('loadedmetadata', ()=>{ if(challenge.active && challenge.pos>=0){ challenge.duration[challenge.tracks[challenge.pos].name] = audio.duration||0; } });
+audio.addEventListener('timeupdate', ()=>{ if(!challenge.active||!audio.duration) return; const fill=document.getElementById('chProgressFill'); if(fill) fill.style.width=(audio.currentTime/audio.duration*100)+'%'; const cur=document.getElementById('chTimeCur'); if(cur) cur.textContent=fmtTime(audio.currentTime); const tot=document.getElementById('chTimeTot'); if(tot) tot.textContent=fmtTime(audio.duration); });
+audio.addEventListener('play', ()=>{ if(challenge.active) chUpdatePlayBtn(); });
+audio.addEventListener('pause', ()=>{ if(challenge.active) chUpdatePlayBtn(); });
+
+// --- Seek on the challenge progress bar ---
+(function(){ const w=document.getElementById('chProgressWrap'); if(w){ w.addEventListener('click', e=>{ if(!challenge.active||!audio.duration) return; const r=w.getBoundingClientRect(); audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration; }); } })();
+
+// --- Keyboard: while a challenge is active, intercept keys before the global handler ---
+document.addEventListener('keydown', e=>{
+  if(!challenge.active) return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.key>='1'&&e.key<='4'&&!e.ctrlKey&&!e.metaKey){ e.preventDefault(); e.stopImmediatePropagation(); chFavorite(parseInt(e.key)); }
+  else if(e.key===' '){ e.preventDefault(); e.stopImmediatePropagation(); chTogglePlay(); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); e.stopImmediatePropagation(); chNext(); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); e.stopImmediatePropagation(); chPrev(); }
+  else { e.preventDefault(); e.stopImmediatePropagation(); }   // block split/merge/delete/undo during a challenge
+}, true);   // capture phase, so it runs before the existing bubble-phase shortcut handler
 
 // ═══════════════════════════════════════════════════════
 //  Init
