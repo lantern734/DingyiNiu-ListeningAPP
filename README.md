@@ -81,20 +81,20 @@ It's recommended to use headphones during training, because you need to flip thr
 
 The author's experience: select a total of 12 hours of audio, then train using this method, ensuring that every segment can be recognized and located within 2 plays — this can raise listening and reading ability in the corresponding language to C1 or even higher. Actual practice time is typically 30 to 40 times the audio duration. Although the time looks long, this method is very efficient. Spending 360 to 480 hours to raise a language's listening and reading ability from A2 to C1 is very fast.
 
-## Challenge Mode
+## 🎯 Challenge Mode
 
 Introduced in version 0.2.0, a "Challenge Mode" button has been added to the top-left corner of the interface. This mode is specifically designed for reviewing and reinforcing WAV files you have already mastered.
 
 In Challenge Mode, users can randomly listen to WAV files selected from *all* folders. You can choose the quantity of random tracks for your session: 50, 100, 200, or All. 
 
 The selection mechanism follows a dynamic algorithm:
-*   WAV files that you perform well on during the challenge will have a lower probability of being selected in future challenges.
-*   WAV files that you struggle with (perform poorly on) will have a higher probability of appearing in future challenges.
-*   WAV files that have been added to your favorites folders have a slightly higher baseline probability of being selected.
+* 📈 WAV files that you perform well on during the challenge will have a lower probability of being selected in future challenges.
+* 📉 WAV files that you struggle with (perform poorly on) will have a higher probability of appearing in future challenges.
+* ⭐ WAV files that have been added to your favorites folders have a slightly higher baseline probability of being selected.
 
 **Best Practices for Challenge Mode:**
-1.  **Prerequisites:** Before starting a challenge, ensure that you have completed the preliminary listening practice for the WAV files across all your folders. 
-2.  **Focus:** During the challenge, you should concentrate as much as possible and try to fully comprehend the meaning of each WAV segment you hear.
+1. **Prerequisites:** Before starting a challenge, ensure that you have completed the preliminary listening practice for the WAV files across all your folders. 
+2. **Focus:** During the challenge, you should concentrate as much as possible and try to fully comprehend the meaning of each WAV segment you hear.
 
 ## Notes
 
