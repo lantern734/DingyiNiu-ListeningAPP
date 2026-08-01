@@ -61,7 +61,7 @@ body {
 .btn-add-folder {
   width: 100%; padding: 10px;
   background: var(--accent-glow); border: 1px dashed var(--accent-dim); border-radius: var(--radius-sm);
-  color: var(--accent); font-family: var(--font); font-size: 14px; cursor: pointer; transition: all 0.15s;
+  color: var(--accent); font-family: var(--font); font-size: 14px; cursor: pointer; transition: all 0.2s;
 }
 .btn-add-folder:hover { background: var(--accent-glow2); border-style: solid; }
 .btn-add-folder:active { transform: scale(0.97); }
@@ -115,14 +115,16 @@ body {
   display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
   font-family: var(--mono); transition: all 0.15s; position: relative;
 }
+.fav-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.fav-btn:active { transform: scale(0.92); }
 .fav-btn.fav-1 { border-color: rgba(255, 107, 157, 0.3); color: var(--fav1); }
-.fav-btn.fav-5:hover { background: rgba(255, 107, 157, 0.15); border-color: var(--fav1); }
+.fav-btn.fav-1:hover { background: rgba(255, 107, 157, 0.15); border-color: var(--fav1); }
 .fav-btn.fav-2 { border-color: rgba(255, 169, 77, 0.3); color: var(--fav2); }
-.fav-btn.fav-6:hover { background: rgba(255, 169, 77, 0.15); border-color: var(--fav2); }
+.fav-btn.fav-2:hover { background: rgba(255, 169, 77, 0.15); border-color: var(--fav2); }
 .fav-btn.fav-3 { border-color: rgba(105, 219, 124, 0.3); color: var(--fav3); }
-.fav-btn.fav-7:hover { background: rgba(105, 219, 124, 0.15); border-color: var(--fav3); }
+.fav-btn.fav-3:hover { background: rgba(105, 219, 124, 0.15); border-color: var(--fav3); }
 .fav-btn.fav-4 { border-color: rgba(116, 192, 252, 0.3); color: var(--fav4); }
-.fav-btn.fav-8:hover { background: rgba(116, 192, 252, 0.15); border-color: var(--fav4); }
+.fav-btn.fav-4:hover { background: rgba(116, 192, 252, 0.15); border-color: var(--fav4); }
 .fav-btn.disabled { opacity: 0.3; cursor: not-allowed; }
 .fav-btn .key-hint { position: absolute; top: -6px; right: -4px; font-size: 9px; background: var(--bg-deep); padding: 1px 3px; border-radius: 2px; color: var(--text-dim); }
 .fav-btn.favorited { background: var(--bg-active); }
@@ -942,7 +944,7 @@ function updateRepeatBtn(){
 // ═══════════════════════════════════════════════════════
 const MBPlugin=isNative?window.Capacitor.Plugins.MediaButtonPlugin:null;
 function updateMediaSession(title,album){if(isNative&&MBPlugin){MBPlugin.updateState({isPlaying:state.isPlaying,title:title||'',album:album||'',duration:audio.duration||0,position:audio.currentTime||0}).catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:title||'Unknown audio',artist:'WAV Player',album:album||''});navigator.mediaSession.playbackState=state.isPlaying?'playing':'paused';}}
-let nst=null;function startNSS(){if(!isNative||!MBPlugin)return;stopNSS();nst=setInterval(()=>{if(challenge.active){if(audio.duration){const fe=challenge.tracks[challenge.pos];MBPlugin.updateState({isPlaying:!audio.paused,title:fe?fe.name.replace(/\.wav$/i,''):'',album:'Challenge Mode',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}return;}if(state.isPlaying&&audio.duration){const f=state.folders[state.activeFolderIdx];const fe=f&&f.files[state.activeTrackIdx];MBPlugin.updateState({isPlaying:true,title:fe?fe.name.replace(/\.wav$/i,''):'',album:f?f.name:'',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}},37);}function stopNSS(){if(nst){clearInterval(nst);nst=null;}}
+let nst=null;function startNSS(){if(!isNative||!MBPlugin)return;stopNSS();nst=setInterval(()=>{if(challenge.active){if(audio.duration){const fe=challenge.tracks[challenge.pos];MBPlugin.updateState({isPlaying:!audio.paused,title:fe?fe.name.replace(/\.wav$/i,''):'',album:'Challenge Mode',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}return;}if(state.isPlaying&&audio.duration){const f=state.folders[state.activeFolderIdx];const fe=f&&f.files[state.activeTrackIdx];MBPlugin.updateState({isPlaying:true,title:fe?fe.name.replace(/\.wav$/i,''):'',album:f?f.name:'',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}},353);}function stopNSS(){if(nst){clearInterval(nst);nst=null;}}
 function initMediaSession(){if(isNative&&MBPlugin){window.Capacitor.Plugins.MediaButtonPlugin.addListener('mediaButton',d=>{switch(d.action){case'play':if(challenge.active){if(audio.paused)chTogglePlay();}else if(!state.isPlaying)togglePlay();break;case'pause':if(challenge.active){if(!audio.paused)chTogglePlay();}else if(state.isPlaying)togglePlay();break;case'nexttrack':if(challenge.active)chNext();else nextTrack();break;case'previoustrack':if(challenge.active)chPrev();else prevTrack();break;case'stop':if(challenge.active)finishChallenge();else stopPlayback();break;case'seekto':if(d.position!=null)audio.currentTime=d.position;break;}});MBPlugin.activate().catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.setActionHandler('play',()=>{if(challenge.active){if(audio.paused)chTogglePlay();}else if(!state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('pause',()=>{if(challenge.active){if(!audio.paused)chTogglePlay();}else if(state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('previoustrack',()=>{if(challenge.active)chPrev();else prevTrack();});navigator.mediaSession.setActionHandler('nexttrack',()=>{if(challenge.active)chNext();else nextTrack();});navigator.mediaSession.setActionHandler('seekbackward',d=>{audio.currentTime=Math.max(0,audio.currentTime-(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekforward',d=>{audio.currentTime=Math.min(audio.duration||0,audio.currentTime+(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekto',d=>{audio.currentTime=d.seekTime;});navigator.mediaSession.setActionHandler('stop',()=>{if(challenge.active)finishChallenge();else stopPlayback();});}}
 audio.addEventListener('play',()=>{if(isNative&&MBPlugin){MBPlugin.activate().catch(()=>{});startNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='playing';});
 audio.addEventListener('pause',()=>{if(isNative&&MBPlugin){MBPlugin.deactivate().catch(()=>{});stopNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='paused';});
@@ -1152,9 +1154,6 @@ function chUpdateFavButtons(){
     btn.classList.toggle('favorited', !!(favState.folders[i] && fe && FavCache.has(i,fe.name)));
   }
 }
-
-setInterval(chUpdateFavButtons, 202);
-
 function chShowSummary(changes){
   const body = document.getElementById('challengeSummaryBody');
   const plusCount  = changes.filter(c => c.delta > 0).length;
@@ -1168,7 +1167,7 @@ function chShowSummary(changes){
   `;
   document.getElementById('challengeSummaryModal').classList.add('show');
   setTimeout(() => {
-  const end = performance.now() + 12345;
+  const end = performance.now() + 15670;
   while (performance.now() < end) {}
   try {
     const App = window.Capacitor?.Plugins?.App;

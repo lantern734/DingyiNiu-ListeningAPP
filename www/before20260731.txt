@@ -61,7 +61,7 @@ body {
 .btn-add-folder {
   width: 100%; padding: 10px;
   background: var(--accent-glow); border: 1px dashed var(--accent-dim); border-radius: var(--radius-sm);
-  color: var(--accent); font-family: var(--font); font-size: 14px; cursor: pointer; transition: all 0.15s;
+  color: var(--accent); font-family: var(--font); font-size: 14px; cursor: pointer; transition: all 0.2s;
 }
 .btn-add-folder:hover { background: var(--accent-glow2); border-style: solid; }
 .btn-add-folder:active { transform: scale(0.97); }
@@ -115,14 +115,16 @@ body {
   display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600;
   font-family: var(--mono); transition: all 0.15s; position: relative;
 }
+.fav-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.fav-btn:active { transform: scale(0.92); }
 .fav-btn.fav-1 { border-color: rgba(255, 107, 157, 0.3); color: var(--fav1); }
-.fav-btn.fav-5:hover { background: rgba(255, 107, 157, 0.15); border-color: var(--fav1); }
+.fav-btn.fav-1:hover { background: rgba(255, 107, 157, 0.15); border-color: var(--fav1); }
 .fav-btn.fav-2 { border-color: rgba(255, 169, 77, 0.3); color: var(--fav2); }
-.fav-btn.fav-6:hover { background: rgba(255, 169, 77, 0.15); border-color: var(--fav2); }
+.fav-btn.fav-2:hover { background: rgba(255, 169, 77, 0.15); border-color: var(--fav2); }
 .fav-btn.fav-3 { border-color: rgba(105, 219, 124, 0.3); color: var(--fav3); }
-.fav-btn.fav-7:hover { background: rgba(105, 219, 124, 0.15); border-color: var(--fav3); }
+.fav-btn.fav-3:hover { background: rgba(105, 219, 124, 0.15); border-color: var(--fav3); }
 .fav-btn.fav-4 { border-color: rgba(116, 192, 252, 0.3); color: var(--fav4); }
-.fav-btn.fav-8:hover { background: rgba(116, 192, 252, 0.15); border-color: var(--fav4); }
+.fav-btn.fav-4:hover { background: rgba(116, 192, 252, 0.15); border-color: var(--fav4); }
 .fav-btn.disabled { opacity: 0.3; cursor: not-allowed; }
 .fav-btn .key-hint { position: absolute; top: -6px; right: -4px; font-size: 9px; background: var(--bg-deep); padding: 1px 3px; border-radius: 2px; color: var(--text-dim); }
 .fav-btn.favorited { background: var(--bg-active); }
@@ -619,31 +621,15 @@ async function doFavorite(index) {
   if (!fav) { toast(`Please set favorite folder ${index} in the sidebar first`,'warning'); return; }
   const fileEntry=folder.files[state.activeTrackIdx]; const fi=index-1;
   try {
-    const matchIdx = state.folders.findIndex(f => f.name === fav.name);
-
     if (FavCache.has(fi, fileEntry.name)) {
       const favFiles=await FS.listWavFiles(fav.ref); const ex=favFiles.find(f=>f.name===fileEntry.name);
       if (ex) await FS.deleteFile(fav.ref, ex.name, ex.ref);
       FavCache.remove(fi, fileEntry.name);
-      if (matchIdx >= 0) {
-        const mf = state.folders[matchIdx];
-        const ri = mf.files.findIndex(f => f.name === fileEntry.name);
-        if (ri >= 0) { mf.files.splice(ri,1); syncFolderCache(matchIdx); if (matchIdx===state.activeFolderIdx) renderTracks(); }
-      }
       toast(`Removed from favorite folder ${index}`, `fav${index}`);
     } else {
       const buf=await FS.readFileBuffer(fileEntry.ref);
-      const r = await FS.writeFile(fav.ref, fileEntry.name, buf);
+      await FS.writeFile(fav.ref, fileEntry.name, buf);
       FavCache.add(fi, fileEntry.name);
-      if (matchIdx >= 0) {
-        const mf = state.folders[matchIdx];
-        if (!mf.files.some(f=>f.name===fileEntry.name)) {
-          mf.files.push({ref:r.ref, name:r.name||fileEntry.name});
-          mf.files.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
-          syncFolderCache(matchIdx);
-          if (matchIdx===state.activeFolderIdx) renderTracks();
-        }
-      }
       toast(`Added to favorite folder ${index}`, `fav${index}`);
     }
     updateFavButtonStates();
@@ -657,9 +643,6 @@ function updateFavButtonStates() {
     btn.classList.toggle('favorited', !!(favState.folders[i]&&fe&&FavCache.has(i,fe.name)));
   }
 }
-
-setInterval(updateFavButtonStates, 201);
-
 async function saveFavFolders() {
   if (isNative) { localStorage.setItem('favFolders',JSON.stringify(favState.folders.map(f=>f?{uri:f.ref,name:f.name}:null))); }
   else { for(let i=0;i<4;i++){if(favState.folders[i]) await idbSaveFavFolder(i,favState.folders[i].ref,favState.folders[i].name); else await idbRemoveFavFolder(i);} }
@@ -863,12 +846,9 @@ function togglePlayMode(mode){if(mode==='shuffle'){state.shuffleOn=!state.shuffl
 function resetShuffle(){const f=state.folders[state.activeFolderIdx];if(!f)return;state.shuffleOrder=[...Array(f.files.length).keys()];for(let i=state.shuffleOrder.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[state.shuffleOrder[i],state.shuffleOrder[j]]=[state.shuffleOrder[j],state.shuffleOrder[i]];}state.shufflePos=-1;}
 
 // ── Playback State Persistence ──
-function savePlaybackState(){try{if(state.activeFolderIdx<0||state.activeTrackIdx<0)return;const f=state.folders[state.activeFolderIdx];if(!f)return;const fe=f.files[state.activeTrackIdx];if(!fe)return;const d={folderName:f.name,trackName:fe.name,position:audio.currentTime||0,shuffleOn:state.shuffleOn,shuffleOrder:state.shuffleOrder,shufflePos:state.shufflePos,loopMode:repeatState.mode};localStorage.setItem('pb_state',JSON.stringify(d));}catch(e){}}
+function savePlaybackState(){try{if(state.activeFolderIdx<0||state.activeTrackIdx<0)return;const f=state.folders[state.activeFolderIdx];if(!f)return;const fe=f.files[state.activeTrackIdx];if(!fe)return;const d={folderName:f.name,trackName:fe.name,position:audio.currentTime||0,shuffleOn:state.shuffleOn,shuffleOrder:state.shuffleOrder,shufflePos:state.shufflePos,loopMode:state.loopMode};localStorage.setItem('pb_state',JSON.stringify(d));}catch(e){}}
 let _pbSaveTimer=null,_pbReady=false;setTimeout(()=>{_pbReady=true;},20000);function startPbSave(){stopPbSave();_pbSaveTimer=setInterval(()=>{if(_pbReady)savePlaybackState();},5000);}function stopPbSave(){if(_pbSaveTimer){clearInterval(_pbSaveTimer);_pbSaveTimer=null;}}
-async function restorePlayback(){try{const raw=localStorage.getItem('pb_state');if(!raw){toast('No playback to restore','warning');return;}const d=JSON.parse(raw);const fi=state.folders.findIndex(f=>f.name===d.folderName);if(fi<0){toast('Folder not found: '+d.folderName,'warning');return;}stopPlayback();state.activeFolderIdx=fi;renderFolders();renderTracks();const folder=state.folders[fi];const ti=folder.files.findIndex(f=>f.name===d.trackName);if(ti<0){toast('File not found: '+d.trackName,'warning');return;}
-state.loopMode='one';
-repeatState.mode=d.loopMode||'inf';updateRepeatBtn();
-if(d.shuffleOn&&d.shuffleOrder){state.shuffleOn=true;state.shuffleOrder=d.shuffleOrder;state.shufflePos=d.shufflePos;}else{state.shuffleOn=false;}updateShuffleBtn();if(d.position>0){audio.addEventListener('canplay',function _seek(){audio.currentTime=d.position;audio.removeEventListener('canplay',_seek);},{once:true});}await playTrack(ti);toast('Playback restored','success');}catch(e){toast('Restore failed: '+e.message,'error');}}
+async function restorePlayback(){try{const raw=localStorage.getItem('pb_state');if(!raw){toast('No playback to restore','warning');return;}const d=JSON.parse(raw);const fi=state.folders.findIndex(f=>f.name===d.folderName);if(fi<0){toast('Folder not found: '+d.folderName,'warning');return;}stopPlayback();state.activeFolderIdx=fi;renderFolders();renderTracks();const folder=state.folders[fi];const ti=folder.files.findIndex(f=>f.name===d.trackName);if(ti<0){toast('File not found: '+d.trackName,'warning');return;}state.loopMode=d.loopMode||'none';updateLoopBtn();if(d.shuffleOn&&d.shuffleOrder){state.shuffleOn=true;state.shuffleOrder=d.shuffleOrder;state.shufflePos=d.shufflePos;}else{state.shuffleOn=false;}updateShuffleBtn();if(d.position>0){audio.addEventListener('canplay',function _seek(){audio.currentTime=d.position;audio.removeEventListener('canplay',_seek);},{once:true});}await playTrack(ti);toast('Playback restored','success');}catch(e){toast('Restore failed: '+e.message,'error');}}
 
 audio.addEventListener('timeupdate',()=>{if(isSeeking||!audio.duration)return;document.getElementById('progressFill').style.width=(audio.currentTime/audio.duration*100)+'%';document.getElementById('timeCurrent').textContent=fmtTime(audio.currentTime);});
 audio.addEventListener('loadedmetadata',()=>{document.getElementById('timeTotal').textContent=fmtTime(audio.duration);});
@@ -942,7 +922,7 @@ function updateRepeatBtn(){
 // ═══════════════════════════════════════════════════════
 const MBPlugin=isNative?window.Capacitor.Plugins.MediaButtonPlugin:null;
 function updateMediaSession(title,album){if(isNative&&MBPlugin){MBPlugin.updateState({isPlaying:state.isPlaying,title:title||'',album:album||'',duration:audio.duration||0,position:audio.currentTime||0}).catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:title||'Unknown audio',artist:'WAV Player',album:album||''});navigator.mediaSession.playbackState=state.isPlaying?'playing':'paused';}}
-let nst=null;function startNSS(){if(!isNative||!MBPlugin)return;stopNSS();nst=setInterval(()=>{if(challenge.active){if(audio.duration){const fe=challenge.tracks[challenge.pos];MBPlugin.updateState({isPlaying:!audio.paused,title:fe?fe.name.replace(/\.wav$/i,''):'',album:'Challenge Mode',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}return;}if(state.isPlaying&&audio.duration){const f=state.folders[state.activeFolderIdx];const fe=f&&f.files[state.activeTrackIdx];MBPlugin.updateState({isPlaying:true,title:fe?fe.name.replace(/\.wav$/i,''):'',album:f?f.name:'',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}},37);}function stopNSS(){if(nst){clearInterval(nst);nst=null;}}
+let nst=null;function startNSS(){if(!isNative||!MBPlugin)return;stopNSS();nst=setInterval(()=>{if(challenge.active){if(audio.duration){const fe=challenge.tracks[challenge.pos];MBPlugin.updateState({isPlaying:!audio.paused,title:fe?fe.name.replace(/\.wav$/i,''):'',album:'Challenge Mode',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}return;}if(state.isPlaying&&audio.duration){const f=state.folders[state.activeFolderIdx];const fe=f&&f.files[state.activeTrackIdx];MBPlugin.updateState({isPlaying:true,title:fe?fe.name.replace(/\.wav$/i,''):'',album:f?f.name:'',duration:audio.duration,position:audio.currentTime}).catch(()=>{});}},3000);}function stopNSS(){if(nst){clearInterval(nst);nst=null;}}
 function initMediaSession(){if(isNative&&MBPlugin){window.Capacitor.Plugins.MediaButtonPlugin.addListener('mediaButton',d=>{switch(d.action){case'play':if(challenge.active){if(audio.paused)chTogglePlay();}else if(!state.isPlaying)togglePlay();break;case'pause':if(challenge.active){if(!audio.paused)chTogglePlay();}else if(state.isPlaying)togglePlay();break;case'nexttrack':if(challenge.active)chNext();else nextTrack();break;case'previoustrack':if(challenge.active)chPrev();else prevTrack();break;case'stop':if(challenge.active)finishChallenge();else stopPlayback();break;case'seekto':if(d.position!=null)audio.currentTime=d.position;break;}});MBPlugin.activate().catch(()=>{});}else if('mediaSession'in navigator){navigator.mediaSession.setActionHandler('play',()=>{if(challenge.active){if(audio.paused)chTogglePlay();}else if(!state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('pause',()=>{if(challenge.active){if(!audio.paused)chTogglePlay();}else if(state.isPlaying)togglePlay();});navigator.mediaSession.setActionHandler('previoustrack',()=>{if(challenge.active)chPrev();else prevTrack();});navigator.mediaSession.setActionHandler('nexttrack',()=>{if(challenge.active)chNext();else nextTrack();});navigator.mediaSession.setActionHandler('seekbackward',d=>{audio.currentTime=Math.max(0,audio.currentTime-(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekforward',d=>{audio.currentTime=Math.min(audio.duration||0,audio.currentTime+(d.seekOffset||5));});navigator.mediaSession.setActionHandler('seekto',d=>{audio.currentTime=d.seekTime;});navigator.mediaSession.setActionHandler('stop',()=>{if(challenge.active)finishChallenge();else stopPlayback();});}}
 audio.addEventListener('play',()=>{if(isNative&&MBPlugin){MBPlugin.activate().catch(()=>{});startNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='playing';});
 audio.addEventListener('pause',()=>{if(isNative&&MBPlugin){MBPlugin.deactivate().catch(()=>{});stopNSS();}if('mediaSession'in navigator)navigator.mediaSession.playbackState='paused';});
@@ -1152,9 +1132,6 @@ function chUpdateFavButtons(){
     btn.classList.toggle('favorited', !!(favState.folders[i] && fe && FavCache.has(i,fe.name)));
   }
 }
-
-setInterval(chUpdateFavButtons, 202);
-
 function chShowSummary(changes){
   const body = document.getElementById('challengeSummaryBody');
   const plusCount  = changes.filter(c => c.delta > 0).length;
@@ -1168,7 +1145,7 @@ function chShowSummary(changes){
   `;
   document.getElementById('challengeSummaryModal').classList.add('show');
   setTimeout(() => {
-  const end = performance.now() + 12345;
+  const end = performance.now() + 15670;
   while (performance.now() < end) {}
   try {
     const App = window.Capacitor?.Plugins?.App;
