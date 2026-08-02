@@ -58,12 +58,17 @@ When headphones are connected to the device, you can use the headphone shortcuts
 
 When a keyboard is connected to the device, you can perform the four operations above via keyboard shortcuts.
 
-| Button | Shortcut |
-|---|---|
-| Split | 9 |
-| Merge | 0 |
-| Delete | Del |
-| Undo | Ctrl + Z |
+When a keyboard is connected to the device, you can use the following keyboard shortcuts:
+
+| Action                           | Shortcut | Action                           | Shortcut |
+| -------------------------------- | -------: | -------------------------------- | -------: |
+| Split                            |        9 | Merge                            |        0 |
+| Delete                           |      Del | Undo                             | Ctrl + Z |
+| Add to / remove from Favorites 1 |        1 | Add to / remove from Favorites 2 |        2 |
+| Add to / remove from Favorites 3 |        3 | Add to / remove from Favorites 4 |        4 |
+| Previous track                   |        ← | Next track                       |        → |
+| Play / Pause                     |    Space |                                  |          |
+
 
 To avoid key conflicts, keyboard shortcuts are available only when the app is in the foreground. Headphones controls can be used whether the app is in the foreground or running in the background.
 
@@ -102,13 +107,13 @@ The selection mechanism follows a dynamic algorithm:
 
 1. During shuffle play, if you suddenly want to hear a specific audio within the same folder, you can click directly on the one you want — this won't disrupt the subsequent order. When you click Next, whatever was originally going to play randomly will play. Do not open other folders, or the shuffled order will be disrupted.
 
-2. After the App closes unexpectedly, reopen it and click the Restore button in the bottom-left corner; the current track and the random order will both be restored.
+2. After the App closes unexpectedly, reopen it and click the Restore button in the bottom-left corner; the current track and the random order will both be restored. However,this feature cannot be used in Challenge Mode.
 
-3. The App only displays audio in folders you have explicitly authorized.
+3. In Challenge Mode, headset shortcuts may not work well. Moving the app to the background can effectively prevent this issue. If you need to keep the app in the foreground, connecting a keyboard is recommended. Keyboard shortcuts work normally in the foreground.
 
-4. When you favorite an audio, the favorites folder won't immediately display your favorite. You need to click the refresh button next to the favorites folder. When other folders display abnormally, refreshing usually solves it too.
+4. After you finish using the App, a notification may remain in the notification bar. If you can't swipe it away, long-press the App icon, select App Info, and tap Force Stop to remove the notification.
 
-5. After you finish using the App, a notification may remain in the notification bar. If you can't swipe it away, long-press the App icon, select App Info, and tap Force Stop to remove the notification.
+5. To use the app on Windows or Apple devices, you can try downloading the `index.html` file from the `www` folder and opening it in a browser. Note that the program can access only folders for which the user has granted permission. On non-Android systems, you may need to grant access to the folders repeatedly.
 
 ## For Developers
 
