@@ -105,7 +105,7 @@ The selection mechanism follows a dynamic algorithm:
 
 1. During shuffle play, if you suddenly want to hear a specific audio within the same folder, you can click directly on the one you want — this won't disrupt the subsequent order. When you click Next, whatever was originally going to play randomly will play. Do not open other folders, or the shuffled order will be disrupted.
 
-2. After the App closes unexpectedly, reopen it and click the Restore button in the bottom-left corner; the current track and the random order will both be restored. However,this feature cannot be used in Challenge Mode.
+2. After the App closes unexpectedly, reopen it and click the Restore button in the bottom-left corner; the current track and the random order will both be restored. However, this feature cannot be used in Challenge Mode.
 
 3. In Challenge Mode, headset shortcuts may not work well. Moving the app to the background can effectively prevent this issue. If you need to keep the app in the foreground, connecting a keyboard is recommended. Keyboard shortcuts work normally in the foreground.
 
