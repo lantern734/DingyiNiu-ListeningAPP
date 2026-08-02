@@ -65,7 +65,7 @@ When a keyboard is connected to the device, you can use the following keyboard s
 | Add to / remove from Favorites 1 |        1 | Add to / remove from Favorites 2 |        2 |
 | Add to / remove from Favorites 3 |        3 | Add to / remove from Favorites 4 |        4 |
 | Previous track                   |        ← | Next track                       |        → |
-| Play / Pause                     |    Space |                                  |          |
+| Pause / Resume                   |    Space |                                  |          |
 
 
 To avoid key conflicts, keyboard shortcuts are available only when the app is in the foreground. Headphones controls can be used whether the app is in the foreground or running in the background.
