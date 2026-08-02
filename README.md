@@ -22,13 +22,13 @@ The first folder should contain one file: `silence_1min.wav`, downloaded from Re
 
 The second through fifth folders are favorites folders. You can put noteworthy content into the favorites, and a single WAV audio file can be placed in different favorites folders. It's recommended to put content of different themes into different favorites folders, which helps categorize WAV audio. Click "Favorites Directory" in the bottom-left corner to set up these 4 favorites folders. After setting them up, close and restart the App, and you'll see these 4 favorites folders in the folder list on the left.
 
-Folders added afterward are used to store the WAV audio you'll actually be working with. Click "Add Folder" in the top-left corner to add such folders.
-
-## File Order
+Folders added afterward are used to store the WAV audio you'll actually be working with. Click "Add Folder" in the top-left corner to add such folders. Folders are displayed in the order in which you add them.
 
 Within each folder, WAV files are listed in natural sort order by filename — numbers are compared as numbers, so `name_2.wav` comes before `name_10.wav` rather than after it. This order determines which file plays next, and which file Merge combines with.
 
-## Split
+## WAV Editing Operations
+
+### 1. Split
 
 Select an audio file and press Split. The App will split the audio into short segments at silence points. The split files will be renamed using the rule: original_name_1, original_name_2, and so on.
 
@@ -36,7 +36,7 @@ The App splits at the exact middle of any silence longer than the threshold. The
 
 Splitting is lossless.
 
-## Merge
+### 2. Merge
 
 Select an audio file and press Merge. The App will merge it with the file immediately below it in the same folder's track list. The merged file keeps the name of the upper file.
 
@@ -44,15 +44,17 @@ If the two files share the same sample rate, bit depth, and channel count, mergi
 
 Files produced by splitting always share these three properties, so merging files that came from the same split is always lossless.
 
-## Delete
+### 3. Delete
 
 Select an audio file and press Delete. The App will remove the audio file from both local storage and the playlist.
 
-## Undo
+### 4. Undo
 
 After clicking Split, Merge, or Delete, you can click Undo to cancel the last operation.
 
-## Keyboard Shortcuts
+## Shortcuts
+
+When headphones are connected to the device, you can use the headphone shortcuts to pause, resume, go to the previous track, and go to the next track.
 
 When a keyboard is connected to the device, you can perform the four operations above via keyboard shortcuts.
 
@@ -63,7 +65,7 @@ When a keyboard is connected to the device, you can perform the four operations 
 | Delete | Del |
 | Undo | Ctrl + Z |
 
-When headphones are connected to the device, you can also use the headphone shortcuts to pause, resume, go to the previous track, and go to the next track.
+To avoid key conflicts, keyboard shortcuts are available only when the app is in the foreground. Headphones controls can be used whether the app is in the foreground or running in the background.
 
 ## For Language Learning
 
@@ -98,7 +100,7 @@ The selection mechanism follows a dynamic algorithm:
 
 ## Notes
 
-1. During shuffle play, if you suddenly want to hear a specific audio, you can click directly on the one you want — this won't disrupt the subsequent order. When you click Next, whatever was originally going to play randomly will play.
+1. During shuffle play, if you suddenly want to hear a specific audio within the same folder, you can click directly on the one you want — this won't disrupt the subsequent order. When you click Next, whatever was originally going to play randomly will play. Do not open other folders, or the shuffled order will be disrupted.
 
 2. After the App closes unexpectedly, reopen it and click the Restore button in the bottom-left corner; the current track and the random order will both be restored.
 
