@@ -56,8 +56,6 @@ After clicking Split, Merge, or Delete, you can click Undo to cancel the last op
 
 When headphones are connected to the device, you can use the headphone shortcuts to pause, resume, go to the previous track, and go to the next track.
 
-When a keyboard is connected to the device, you can perform the four operations above via keyboard shortcuts.
-
 When a keyboard is connected to the device, you can use the following keyboard shortcuts:
 
 | Action                           | Shortcut | Action                           | Shortcut |
